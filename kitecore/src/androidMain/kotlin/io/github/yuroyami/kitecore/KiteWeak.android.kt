@@ -1,9 +1,9 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
-// Identical to the jvmMain copy — KiteCore has no shared jvm/android source
-// set. Keep the two in sync (as with the js/wasmJs KiteWorker pair).
+// Identical to the jvmMain copy. KiteCore has no shared jvm/android source set;
+// keep the two in sync.
 public actual class KiteWeak<T : Any> actual constructor(referred: T) {
 
     private val ref = java.lang.ref.WeakReference(referred)

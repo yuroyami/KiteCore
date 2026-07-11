@@ -1,16 +1,4 @@
-/*
- * Copyright 2026 yuroyami
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
@@ -18,28 +6,39 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 /**
- * A dispatcher for blocking / IO-bound work, unified across every KMP target.
+ * Returns the [CoroutineDispatcher] for blocking and IO-bound work on the current target.
  *
- * - **JVM / Android / Apple (iOS, macOS):** the real [Dispatchers.IO]. It exists
- *   on Kotlin/Native since coroutines 1.7 — the "no IO on native" belief is a
- *   closed gap; this exposes one name for all three.
- * - **Web (js / wasmJs):** there is no OS thread pool to block. Returns the
- *   dispatcher installed via [installIoDispatcher] if present, otherwise falls
- *   back to [Dispatchers.Default] (the single JS event loop) and warns once. Use
- *   [KiteWorker] (js) or kmp-ssot's `web { generateIoWorker = true }` to push
- *   heavy work off the main thread, then [installIoDispatcher] the result.
+ * Platform behavior:
+ * - JVM, Android, Apple (iOS, macOS): the real [Dispatchers.IO], an elastic thread pool.
+ * - Web (js, wasmJs): no OS thread pool exists. Returns the dispatcher set by
+ *   [installIoDispatcher] if one was installed, otherwise [Dispatchers.Default] (the
+ *   single-threaded JS event loop) with a one-time console warning. To move heavy work
+ *   off the main thread, use `KiteWorker` or `kiteOffload` (available on js and wasmJs),
+ *   or generate a worker with kmp-ssot's `web { generateIoWorker = true }`, then pass the
+ *   result to [installIoDispatcher].
  *
- * Usage: `withContext(ioDispatcher()) { /* blocking work */ }`.
+ * @see installIoDispatcher
+ *
+ * ```kotlin
+ * withContext(ioDispatcher()) {
+ *     // blocking work
+ * }
+ * ```
  */
-expect fun ioDispatcher(): CoroutineDispatcher
+public expect fun ioDispatcher(): CoroutineDispatcher
 
 /**
- * Install the dispatcher backing [ioDispatcher] on the web targets (js / wasmJs).
- * No-op on JVM / Android / Apple, where [ioDispatcher] is already a real thread
- * pool. Call once at startup.
+ * Sets the [CoroutineDispatcher] that [ioDispatcher] returns on the web targets (js, wasmJs).
+ *
+ * Call once at startup, before the first [ioDispatcher] call. A later call replaces the
+ * previously installed dispatcher. On JVM, Android, and Apple this is a no-op, because
+ * [ioDispatcher] already returns a real thread pool.
+ *
+ * @param dispatcher the dispatcher to back [ioDispatcher] on web targets.
+ * @see ioDispatcher
  */
-expect fun installIoDispatcher(dispatcher: CoroutineDispatcher)
+public expect fun installIoDispatcher(dispatcher: CoroutineDispatcher)
 
-/** `Dispatchers.KiteIO` — sugar for [ioDispatcher]. */
-val Dispatchers.KiteIO: CoroutineDispatcher
+/** Shorthand for [ioDispatcher]. */
+public val Dispatchers.KiteIO: CoroutineDispatcher
     get() = ioDispatcher()

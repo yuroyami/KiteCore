@@ -1,4 +1,4 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
@@ -40,7 +40,6 @@ class KiteWeakTest {
 
     @Test
     fun isWeakSupported_is_false_only_on_wasm() {
-        // Ties the capability flag to the existing Platform identity API.
         val expected = Platform.current.family != PlatformFamily.WASM
         assertEquals(expected, KiteWeak.isWeakSupported)
     }

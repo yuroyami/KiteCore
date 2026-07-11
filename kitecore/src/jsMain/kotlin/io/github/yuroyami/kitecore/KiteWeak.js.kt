@@ -1,12 +1,12 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
 // Kotlin/JS objects are JS objects, so the ES2021 `WeakRef` holds them directly.
 // Feature-detect it; on a pre-ES2021 runtime fall back to a strong hold and
-// report isWeakSupported = false (same honest contract as wasmJs). JS primitives
-// (String, boxed numbers) are not valid WeakRef targets — the try/catch below
-// falls back to a strong hold for those referents.
+// report isWeakSupported = false. JS primitives (String, boxed numbers) are not
+// valid WeakRef targets, so the try/catch below falls back to a strong hold for
+// those referents.
 private val hasWeakRef: Boolean = js("typeof WeakRef !== 'undefined'")
 
 private fun newWeakRefOrNull(o: Any): dynamic =

@@ -1,4 +1,4 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
@@ -16,7 +16,7 @@ class IoDispatcherTest {
     }
 
     @Test
-    fun KiteIO_sugar_resolves() = runTest {
+    fun KiteIO_resolves_to_ioDispatcher() = runTest {
         val result = withContext(kotlinx.coroutines.Dispatchers.KiteIO) { "ok" }
         assertEquals("ok", result)
     }

@@ -1,4 +1,4 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
@@ -8,16 +8,16 @@ import kotlinx.coroutines.Dispatchers
 private var installed: CoroutineDispatcher? = null
 private var warned = false
 
-actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
+public actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
     installed = dispatcher
 }
 
-actual fun ioDispatcher(): CoroutineDispatcher {
+public actual fun ioDispatcher(): CoroutineDispatcher {
     installed?.let { return it }
     if (!warned) {
         warned = true
         jsConsoleWarn(
-            "[KiteCore] ioDispatcher(): no Web Worker dispatcher installed — falling back to " +
+            "[KiteCore] ioDispatcher(): no Web Worker dispatcher installed; falling back to " +
                 "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
                 "leave the main thread. Use KiteWorker / kiteOffload, or kmpSsot { web { generateIoWorker = true } }."
         )

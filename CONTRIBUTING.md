@@ -1,6 +1,6 @@
 # Contributing to KiteCore
 
-Thanks for helping close KMP's runtime gaps.
+This guide covers building and contributing to KiteCore.
 
 ## Building
 
@@ -9,20 +9,19 @@ Thanks for helping close KMP's runtime gaps.
   (`jsBrowserTest`, `wasmJsBrowserTest`) need a local Chrome; Apple simulator
   tests need Xcode.
 
-## Rules of the road
+## Rules
 
 - **Public API is guarded.** Explicit API mode is on, and the ABI dump is
-  committed. If you deliberately change the public surface, regenerate the dump
-  (`./gradlew :kitecore:updateLegacyAbi` — check `./gradlew :kitecore:tasks --all | grep -i abi`
+  committed. If you change the public surface, regenerate the dump
+  (`./gradlew :kitecore:updateKotlinAbi`; check `./gradlew :kitecore:tasks --all | grep -i abi`
   if the task name differs) and include it in the same commit.
-- **The worker protocol is triplicated on purpose.** The jsMain `KiteWorker`,
+- **The worker protocol has three implementations.** The jsMain `KiteWorker`,
   the wasmJsMain `KiteWorker`, and kmp-ssot's `generateIoWorkerSource` implement
   one wire protocol (v2: `{ id, payload }` request, `{ id, ok, result | error }`
   reply). A protocol bug fixed in one copy must be fixed in all of them.
 - Every public declaration carries KDoc. README examples must be real outputs
   of the code, not aspirational ones.
-- Tests accompany behavior changes — the web targets especially (that's where
-  the subtle bugs live).
+- Tests accompany behavior changes, especially on the web targets.
 
 ## Commits
 

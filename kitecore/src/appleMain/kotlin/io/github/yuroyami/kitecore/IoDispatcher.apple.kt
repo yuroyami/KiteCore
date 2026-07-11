@@ -1,26 +1,20 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
-
-@file:OptIn(DelicateCoroutinesApi::class)
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
-/**
- * `Dispatchers.IO` is JVM/Android-only — it is `internal` on Kotlin/Native. To
- * honour the "dispatcher for blocking work" contract on Apple targets, back it
- * with a dedicated fixed thread pool so blocking syscalls don't starve
- * `Dispatchers.Default` (the CPU pool). Process-lifetime singleton, like
- * `Dispatchers.IO` itself — intentionally never closed.
+/*
+ * Dispatchers.IO is public on Kotlin/Native since kotlinx-coroutines 1.7. It is
+ * elastic up to 64 threads, parks when idle, and shares its budget with
+ * limitedParallelism. On Native it is an extension property in the
+ * kotlinx.coroutines package, which requires the explicit `import kotlinx.coroutines.IO`.
  */
-private val appleIo: CoroutineDispatcher by lazy {
-    newFixedThreadPoolContext(nThreads = 64, name = "KiteCore-IO")
-}
 
-actual fun ioDispatcher(): CoroutineDispatcher = appleIo
+public actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
-actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
-    // No-op: Apple targets get a real dedicated IO thread pool above.
+public actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
+    // No-op: Apple targets already have a real IO thread pool.
 }

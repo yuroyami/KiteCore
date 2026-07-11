@@ -1,20 +1,25 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 package io.github.yuroyami.kitecore
 
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PlatformTest {
 
     @Test
     fun platform_is_populated() {
-        assertTrue(platform.name.isNotBlank(), "platform.name should be set")
-        assertTrue(platform.toString().isNotBlank())
-        // family is a non-null enum by construction; touch it so the test fails to
-        // compile if the shape regresses.
-        val f: PlatformFamily = platform.family
-        assertTrue(f in PlatformFamily.entries)
+        val p = Platform.current
+        assertTrue(p.name.isNotBlank(), "platform.name should be set")
+        assertTrue(p.toString().startsWith(p.name))
+        assertTrue(p.toString().endsWith("(${p.deviceModel})"))
+    }
+
+    @Test
+    fun osVersion_does_not_duplicate_the_name() {
+        val p = Platform.current
+        assertFalse(p.osVersion.startsWith(p.name), "osVersion must not repeat name: $p")
     }
 
     @Test

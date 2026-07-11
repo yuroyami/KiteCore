@@ -1,4 +1,4 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 @file:OptIn(ExperimentalWasmJsInterop::class)
 
@@ -47,17 +47,19 @@ private fun postJob(worker: JsAny, id: Int, payload: String): Unit =
 private fun workerTerminate(worker: JsAny): Unit = js("worker.terminate()")
 
 /**
- * Inline Web Worker offload primitive for Kotlin/Wasm (wasmJs) — API-identical
- * to the Kotlin/JS `KiteWorker`. Spins up a Worker from a Blob URL and runs a
- * self-contained JS job function off the single main thread.
+ * A Web Worker that runs a self-contained JavaScript job off the main thread on
+ * Kotlin/Wasm (wasmJs).
  *
- * The job runs in the Worker scope with **no access to your Kotlin module**: pass
- * everything it needs through the `payload` String (JSON-encode for structure).
- * `jobJs` is a JS function expression `(payload) => result`, sync or async.
+ * The API is identical to the Kotlin/JS `KiteWorker`. The worker is created at
+ * runtime from a Blob URL rather than a separate script file. The job runs in the
+ * Worker scope with no access to the Kotlin module. Pass everything it needs
+ * through the `payload` String and JSON-encode it for structure. `jobJs` is a
+ * JavaScript function expression `(payload) => result`, synchronous or
+ * asynchronous.
  *
- * Calls are safe to cancel: replies carry a correlation id, so a reply to a
- * cancelled call is dropped instead of being delivered to the next caller.
- * Wrap [call] in `withTimeout` for a deadline.
+ * Each reply carries a correlation id. A reply to a cancelled call is dropped
+ * instead of being delivered to the next caller, so [call] is safe to cancel.
+ * Wrap [call] in `withTimeout` to apply a deadline.
  */
 public class KiteWorker private constructor(private val worker: JsAny) {
 
@@ -93,9 +95,11 @@ public class KiteWorker private constructor(private val worker: JsAny) {
     }
 
     /**
-     * Run the job with [payload], suspending until the worker replies. Safe to
-     * call concurrently — calls are serialized on this worker instance — and
-     * safe to cancel — a late reply to a cancelled call is discarded.
+     * Runs the job with [payload] and suspends until the worker replies.
+     *
+     * Calls on one worker instance are serialized, so this is safe to call
+     * concurrently. A late reply to a cancelled call is discarded, so this is
+     * safe to cancel.
      *
      * @throws KiteWorkerException if the job throws, the worker script failed
      *   to load, or [close] is called while this call is in flight.
@@ -117,7 +121,7 @@ public class KiteWorker private constructor(private val worker: JsAny) {
     }
 
     /**
-     * Terminate the underlying Worker. An in-flight [call] fails with
+     * Terminates the underlying Worker. An in-flight [call] fails with
      * [KiteWorkerException]. Idempotent.
      */
     public fun close() {
@@ -130,7 +134,7 @@ public class KiteWorker private constructor(private val worker: JsAny) {
     }
 
     public companion object {
-        /** Build a reusable worker from a JS job expression `(payload) => result`. */
+        /** Builds a reusable worker from a JavaScript job expression `(payload) => result`. */
         public fun of(jobJs: String): KiteWorker = KiteWorker(newBlobWorker(bootstrap(jobJs)))
 
         // Protocol v2: request { id, payload } -> reply { id, ok, result | error },
@@ -152,7 +156,7 @@ public class KiteWorker private constructor(private val worker: JsAny) {
     }
 }
 
-/** One-shot convenience: build a worker, run [payload] through [jobJs], close it. */
+/** Builds a worker, runs [payload] through [jobJs], and then closes the worker. */
 public suspend fun kiteOffload(jobJs: String, payload: String): String {
     val w = KiteWorker.of(jobJs)
     return try {

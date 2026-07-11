@@ -1,4 +1,4 @@
-/* Copyright 2026 yuroyami — Apache License, Version 2.0 (see LICENSE). */
+/* Copyright 2026 yuroyami. Apache License, Version 2.0 (see LICENSE). */
 
 @file:OptIn(ExperimentalWasmJsInterop::class)
 

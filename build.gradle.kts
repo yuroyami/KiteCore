@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
-allprojects {
-    group = "io.github.yuroyami"
-    version = "0.1.0"
-}
+// group and version come from gradle.properties.
 
 dependencies {
     dokka(project(":kitecore"))
