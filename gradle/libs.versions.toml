@@ -1,0 +1,19 @@
+[versions] #######################################################################################
+# Toolchain
+kotlin = "2.4.0"
+agp = "9.2.1"
+vanniktechPublish = "0.36.0"
+dokka = "2.0.0"
+
+# Runtime
+coroutines = "1.11.0"
+
+[libraries] ######################################################################################
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+[plugins] ########################################################################################
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+vanniktech-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechPublish" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

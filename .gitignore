@@ -1,0 +1,18 @@
+.gradle/
+build/
+.kotlin/
+.idea/
+.DS_Store
+local.properties
+captures/
+*.iml
+xcuserdata/
+**/Pods/
+**/Podfile.lock
+
+# Upstream reference source — not part of the published library.
+zxing-master/
+
+# Generated charset tables are committed (see tools/charset-gen), but the
+# generator's own build output is not.
+tools/charset-gen/build/

@@ -1,0 +1,95 @@
+public final class io/github/yuroyami/kitecore/IoDispatcherKt {
+	public static final fun getKiteIO (Lkotlinx/coroutines/Dispatchers;)Lkotlinx/coroutines/CoroutineDispatcher;
+}
+
+public final class io/github/yuroyami/kitecore/IoDispatcher_jvmKt {
+	public static final fun installIoDispatcher (Lkotlinx/coroutines/CoroutineDispatcher;)V
+	public static final fun ioDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+}
+
+public final class io/github/yuroyami/kitecore/KiteCore {
+	public static final field INSTANCE Lio/github/yuroyami/kitecore/KiteCore;
+	public static final field VERSION Ljava/lang/String;
+}
+
+public abstract interface class io/github/yuroyami/kitecore/KiteFuture : kotlinx/coroutines/Deferred {
+	public abstract fun getProgress ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class io/github/yuroyami/kitecore/KiteFuture$DefaultImpls {
+	public static synthetic fun cancel (Lio/github/yuroyami/kitecore/KiteFuture;)V
+	public static fun fold (Lio/github/yuroyami/kitecore/KiteFuture;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public static fun get (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
+	public static fun minusKey (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext;
+	public static fun plus (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+	public static fun plus (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlinx/coroutines/Job;)Lkotlinx/coroutines/Job;
+}
+
+public final class io/github/yuroyami/kitecore/KiteFutureKt {
+	public static final fun asKiteFuture (Lkotlinx/coroutines/Deferred;Lkotlinx/coroutines/flow/StateFlow;)Lio/github/yuroyami/kitecore/KiteFuture;
+	public static final fun kiteAsync (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;)Lio/github/yuroyami/kitecore/KiteFuture;
+	public static synthetic fun kiteAsync$default (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteFuture;
+}
+
+public final class io/github/yuroyami/kitecore/KiteProgress {
+	public fun <init> (Ljava/lang/Float;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Float;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFraction ()Ljava/lang/Float;
+	public final fun getPhase ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/github/yuroyami/kitecore/KiteProgressScope : kotlinx/coroutines/CoroutineScope {
+	public abstract fun report (JJLjava/lang/String;)V
+	public abstract fun report (Ljava/lang/Float;Ljava/lang/String;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
+	public abstract fun slice (FLjava/lang/String;)Lio/github/yuroyami/kitecore/KiteProgressScope;
+	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/KiteProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteProgressScope;
+}
+
+public final class io/github/yuroyami/kitecore/KiteProgressScope$DefaultImpls {
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/KiteProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteProgressScope;
+}
+
+public final class io/github/yuroyami/kitecore/KiteWeak {
+	public static final field Companion Lio/github/yuroyami/kitecore/KiteWeak$Companion;
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun clear ()V
+	public final fun get ()Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/KiteWeak$Companion {
+	public final fun isWeakSupported ()Z
+}
+
+public final class io/github/yuroyami/kitecore/Platform {
+	public static final field Companion Lio/github/yuroyami/kitecore/Platform$Companion;
+	public final fun getDeviceModel ()Ljava/lang/String;
+	public final fun getFamily ()Lio/github/yuroyami/kitecore/PlatformFamily;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getOsVersion ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/Platform$Companion {
+	public final fun getCurrent ()Lio/github/yuroyami/kitecore/Platform;
+}
+
+public final class io/github/yuroyami/kitecore/PlatformFamily : java/lang/Enum {
+	public static final field ANDROID Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field IOS Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field JS Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field JVM Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field MACOS Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field OTHER Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static final field WASM Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/yuroyami/kitecore/PlatformFamily;
+	public static fun values ()[Lio/github/yuroyami/kitecore/PlatformFamily;
+}
+

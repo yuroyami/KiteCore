@@ -1,0 +1,6 @@
+KiteCore
+Copyright 2026 yuroyami
+
+This product is original work, licensed under the Apache License, Version 2.0.
+It has no third-party source provenance; its only runtime dependency is
+kotlinx-coroutines-core (Apache-2.0, JetBrains).

@@ -1,0 +1,108 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, macosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.github.yuroyami:kitecore>
+final enum class io.github.yuroyami.kitecore/PlatformFamily : kotlin/Enum<io.github.yuroyami.kitecore/PlatformFamily> { // io.github.yuroyami.kitecore/PlatformFamily|null[0]
+    enum entry ANDROID // io.github.yuroyami.kitecore/PlatformFamily.ANDROID|null[0]
+    enum entry IOS // io.github.yuroyami.kitecore/PlatformFamily.IOS|null[0]
+    enum entry JS // io.github.yuroyami.kitecore/PlatformFamily.JS|null[0]
+    enum entry JVM // io.github.yuroyami.kitecore/PlatformFamily.JVM|null[0]
+    enum entry MACOS // io.github.yuroyami.kitecore/PlatformFamily.MACOS|null[0]
+    enum entry OTHER // io.github.yuroyami.kitecore/PlatformFamily.OTHER|null[0]
+    enum entry WASM // io.github.yuroyami.kitecore/PlatformFamily.WASM|null[0]
+
+    final val entries // io.github.yuroyami.kitecore/PlatformFamily.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<io.github.yuroyami.kitecore/PlatformFamily> // io.github.yuroyami.kitecore/PlatformFamily.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): io.github.yuroyami.kitecore/PlatformFamily // io.github.yuroyami.kitecore/PlatformFamily.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<io.github.yuroyami.kitecore/PlatformFamily> // io.github.yuroyami.kitecore/PlatformFamily.values|values#static(){}[0]
+}
+
+abstract interface <#A: out kotlin/Any?> io.github.yuroyami.kitecore/KiteFuture : kotlinx.coroutines/Deferred<#A> { // io.github.yuroyami.kitecore/KiteFuture|null[0]
+    abstract val progress // io.github.yuroyami.kitecore/KiteFuture.progress|{}progress[0]
+        abstract fun <get-progress>(): kotlinx.coroutines.flow/StateFlow<io.github.yuroyami.kitecore/KiteProgress> // io.github.yuroyami.kitecore/KiteFuture.progress.<get-progress>|<get-progress>(){}[0]
+}
+
+abstract interface io.github.yuroyami.kitecore/KiteProgressScope : kotlinx.coroutines/CoroutineScope { // io.github.yuroyami.kitecore/KiteProgressScope|null[0]
+    abstract fun report(kotlin/Float?, kotlin/String? = ...) // io.github.yuroyami.kitecore/KiteProgressScope.report|report(kotlin.Float?;kotlin.String?){}[0]
+    abstract fun report(kotlin/Long, kotlin/Long, kotlin/String? = ...) // io.github.yuroyami.kitecore/KiteProgressScope.report|report(kotlin.Long;kotlin.Long;kotlin.String?){}[0]
+    abstract fun slice(kotlin/Float, kotlin/String? = ...): io.github.yuroyami.kitecore/KiteProgressScope // io.github.yuroyami.kitecore/KiteProgressScope.slice|slice(kotlin.Float;kotlin.String?){}[0]
+}
+
+final class <#A: kotlin/Any> io.github.yuroyami.kitecore/KiteWeak { // io.github.yuroyami.kitecore/KiteWeak|null[0]
+    constructor <init>(#A) // io.github.yuroyami.kitecore/KiteWeak.<init>|<init>(1:0){}[0]
+
+    final fun clear() // io.github.yuroyami.kitecore/KiteWeak.clear|clear(){}[0]
+    final fun get(): #A? // io.github.yuroyami.kitecore/KiteWeak.get|get(){}[0]
+
+    final object Companion { // io.github.yuroyami.kitecore/KiteWeak.Companion|null[0]
+        final val isWeakSupported // io.github.yuroyami.kitecore/KiteWeak.Companion.isWeakSupported|{}isWeakSupported[0]
+            final fun <get-isWeakSupported>(): kotlin/Boolean // io.github.yuroyami.kitecore/KiteWeak.Companion.isWeakSupported.<get-isWeakSupported>|<get-isWeakSupported>(){}[0]
+    }
+}
+
+final class io.github.yuroyami.kitecore/KiteProgress { // io.github.yuroyami.kitecore/KiteProgress|null[0]
+    constructor <init>(kotlin/Float?, kotlin/String? = ...) // io.github.yuroyami.kitecore/KiteProgress.<init>|<init>(kotlin.Float?;kotlin.String?){}[0]
+
+    final val fraction // io.github.yuroyami.kitecore/KiteProgress.fraction|{}fraction[0]
+        final fun <get-fraction>(): kotlin/Float? // io.github.yuroyami.kitecore/KiteProgress.fraction.<get-fraction>|<get-fraction>(){}[0]
+    final val phase // io.github.yuroyami.kitecore/KiteProgress.phase|{}phase[0]
+        final fun <get-phase>(): kotlin/String? // io.github.yuroyami.kitecore/KiteProgress.phase.<get-phase>|<get-phase>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.github.yuroyami.kitecore/KiteProgress.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.github.yuroyami.kitecore/KiteProgress.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.github.yuroyami.kitecore/KiteProgress.toString|toString(){}[0]
+}
+
+final class io.github.yuroyami.kitecore/Platform { // io.github.yuroyami.kitecore/Platform|null[0]
+    final val deviceModel // io.github.yuroyami.kitecore/Platform.deviceModel|{}deviceModel[0]
+        final fun <get-deviceModel>(): kotlin/String // io.github.yuroyami.kitecore/Platform.deviceModel.<get-deviceModel>|<get-deviceModel>(){}[0]
+    final val family // io.github.yuroyami.kitecore/Platform.family|{}family[0]
+        final fun <get-family>(): io.github.yuroyami.kitecore/PlatformFamily // io.github.yuroyami.kitecore/Platform.family.<get-family>|<get-family>(){}[0]
+    final val name // io.github.yuroyami.kitecore/Platform.name|{}name[0]
+        final fun <get-name>(): kotlin/String // io.github.yuroyami.kitecore/Platform.name.<get-name>|<get-name>(){}[0]
+    final val osVersion // io.github.yuroyami.kitecore/Platform.osVersion|{}osVersion[0]
+        final fun <get-osVersion>(): kotlin/String // io.github.yuroyami.kitecore/Platform.osVersion.<get-osVersion>|<get-osVersion>(){}[0]
+
+    final fun toString(): kotlin/String // io.github.yuroyami.kitecore/Platform.toString|toString(){}[0]
+
+    final object Companion { // io.github.yuroyami.kitecore/Platform.Companion|null[0]
+        final val current // io.github.yuroyami.kitecore/Platform.Companion.current|{}current[0]
+            final fun <get-current>(): io.github.yuroyami.kitecore/Platform // io.github.yuroyami.kitecore/Platform.Companion.current.<get-current>|<get-current>(){}[0]
+    }
+}
+
+final object io.github.yuroyami.kitecore/KiteCore { // io.github.yuroyami.kitecore/KiteCore|null[0]
+    final const val VERSION // io.github.yuroyami.kitecore/KiteCore.VERSION|{}VERSION[0]
+        final fun <get-VERSION>(): kotlin/String // io.github.yuroyami.kitecore/KiteCore.VERSION.<get-VERSION>|<get-VERSION>(){}[0]
+}
+
+final val io.github.yuroyami.kitecore/KiteIO // io.github.yuroyami.kitecore/KiteIO|@kotlinx.coroutines.Dispatchers{}KiteIO[0]
+    final fun (kotlinx.coroutines/Dispatchers).<get-KiteIO>(): kotlinx.coroutines/CoroutineDispatcher // io.github.yuroyami.kitecore/KiteIO.<get-KiteIO>|<get-KiteIO>@kotlinx.coroutines.Dispatchers(){}[0]
+
+final fun <#A: kotlin/Any?> (kotlinx.coroutines/CoroutineScope).io.github.yuroyami.kitecore/kiteAsync(kotlin.coroutines/CoroutineContext = ..., kotlinx.coroutines/CoroutineStart = ..., kotlin.coroutines/SuspendFunction1<io.github.yuroyami.kitecore/KiteProgressScope, #A>): io.github.yuroyami.kitecore/KiteFuture<#A> // io.github.yuroyami.kitecore/kiteAsync|kiteAsync@kotlinx.coroutines.CoroutineScope(kotlin.coroutines.CoroutineContext;kotlinx.coroutines.CoroutineStart;kotlin.coroutines.SuspendFunction1<io.github.yuroyami.kitecore.KiteProgressScope,0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.coroutines/Deferred<#A>).io.github.yuroyami.kitecore/asKiteFuture(kotlinx.coroutines.flow/StateFlow<io.github.yuroyami.kitecore/KiteProgress>): io.github.yuroyami.kitecore/KiteFuture<#A> // io.github.yuroyami.kitecore/asKiteFuture|asKiteFuture@kotlinx.coroutines.Deferred<0:0>(kotlinx.coroutines.flow.StateFlow<io.github.yuroyami.kitecore.KiteProgress>){0§<kotlin.Any?>}[0]
+final fun io.github.yuroyami.kitecore/installIoDispatcher(kotlinx.coroutines/CoroutineDispatcher) // io.github.yuroyami.kitecore/installIoDispatcher|installIoDispatcher(kotlinx.coroutines.CoroutineDispatcher){}[0]
+final fun io.github.yuroyami.kitecore/ioDispatcher(): kotlinx.coroutines/CoroutineDispatcher // io.github.yuroyami.kitecore/ioDispatcher|ioDispatcher(){}[0]
+
+// Targets: [js, wasmJs]
+final class io.github.yuroyami.kitecore/KiteWorker { // io.github.yuroyami.kitecore/KiteWorker|null[0]
+    final fun close() // io.github.yuroyami.kitecore/KiteWorker.close|close(){}[0]
+    final suspend fun call(kotlin/String): kotlin/String // io.github.yuroyami.kitecore/KiteWorker.call|call(kotlin.String){}[0]
+
+    final object Companion { // io.github.yuroyami.kitecore/KiteWorker.Companion|null[0]
+        final fun of(kotlin/String): io.github.yuroyami.kitecore/KiteWorker // io.github.yuroyami.kitecore/KiteWorker.Companion.of|of(kotlin.String){}[0]
+    }
+}
+
+// Targets: [js, wasmJs]
+final class io.github.yuroyami.kitecore/KiteWorkerException : kotlin/RuntimeException { // io.github.yuroyami.kitecore/KiteWorkerException|null[0]
+    constructor <init>(kotlin/String) // io.github.yuroyami.kitecore/KiteWorkerException.<init>|<init>(kotlin.String){}[0]
+}
+
+// Targets: [js, wasmJs]
+final suspend fun io.github.yuroyami.kitecore/kiteOffload(kotlin/String, kotlin/String): kotlin/String // io.github.yuroyami.kitecore/kiteOffload|kiteOffload(kotlin.String;kotlin.String){}[0]
