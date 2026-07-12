@@ -12,8 +12,8 @@ class IoDispatcherInstallTest {
     // fallback check and the post-install check must stay in one method.
     @Test
     fun fallback_then_install_then_installed_wins() {
-        assertSame(Dispatchers.Default, ioDispatcher())
+        assertSame(Dispatchers.Default, ioDispatcher)
         installIoDispatcher(Dispatchers.Unconfined)
-        assertSame(Dispatchers.Unconfined, ioDispatcher())
+        assertSame(Dispatchers.Unconfined, ioDispatcher)
     }
 }

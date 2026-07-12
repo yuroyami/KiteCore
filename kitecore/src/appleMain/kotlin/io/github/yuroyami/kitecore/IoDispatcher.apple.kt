@@ -13,7 +13,7 @@ import kotlinx.coroutines.IO
  * kotlinx.coroutines package, which requires the explicit `import kotlinx.coroutines.IO`.
  */
 
-public actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
+public actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 
 public actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
     // No-op: Apple targets already have a real IO thread pool.

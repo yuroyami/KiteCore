@@ -12,18 +12,19 @@ public actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
     installed = dispatcher
 }
 
-public actual fun ioDispatcher(): CoroutineDispatcher {
-    installed?.let { return it }
-    if (!warned) {
-        warned = true
-        jsConsoleWarn(
-            "[KiteCore] ioDispatcher(): no Web Worker dispatcher installed; falling back to " +
-                "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
-                "leave the main thread. Use KiteWorker / kiteOffload, or kmpSsot { web { generateIoWorker = true } }."
-        )
+public actual val ioDispatcher: CoroutineDispatcher
+    get() {
+        installed?.let { return it }
+        if (!warned) {
+            warned = true
+            jsConsoleWarn(
+                "[KiteCore] ioDispatcher: no Web Worker dispatcher installed; falling back to " +
+                    "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
+                    "leave the main thread. Use WebWorker / runInWorker, or kmpSsot { web { generateIoWorker = true } }."
+            )
+        }
+        return Dispatchers.Default
     }
-    return Dispatchers.Default
-}
 
 private fun jsConsoleWarn(msg: String) {
     js("console.warn(msg)")

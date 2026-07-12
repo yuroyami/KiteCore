@@ -1,70 +1,11 @@
-public final class io/github/yuroyami/kitecore/IoDispatcherKt {
-	public static final fun getKiteIO (Lkotlinx/coroutines/Dispatchers;)Lkotlinx/coroutines/CoroutineDispatcher;
-}
-
 public final class io/github/yuroyami/kitecore/IoDispatcher_jvmKt {
+	public static final fun getIoDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
 	public static final fun installIoDispatcher (Lkotlinx/coroutines/CoroutineDispatcher;)V
-	public static final fun ioDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
 }
 
 public final class io/github/yuroyami/kitecore/KiteCore {
 	public static final field INSTANCE Lio/github/yuroyami/kitecore/KiteCore;
 	public static final field VERSION Ljava/lang/String;
-}
-
-public abstract interface class io/github/yuroyami/kitecore/KiteFuture : kotlinx/coroutines/Deferred {
-	public abstract fun getProgress ()Lkotlinx/coroutines/flow/StateFlow;
-}
-
-public final class io/github/yuroyami/kitecore/KiteFuture$DefaultImpls {
-	public static synthetic fun cancel (Lio/github/yuroyami/kitecore/KiteFuture;)V
-	public static fun fold (Lio/github/yuroyami/kitecore/KiteFuture;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
-	public static fun get (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
-	public static fun minusKey (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext;
-	public static fun plus (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
-	public static fun plus (Lio/github/yuroyami/kitecore/KiteFuture;Lkotlinx/coroutines/Job;)Lkotlinx/coroutines/Job;
-}
-
-public final class io/github/yuroyami/kitecore/KiteFutureKt {
-	public static final fun asKiteFuture (Lkotlinx/coroutines/Deferred;Lkotlinx/coroutines/flow/StateFlow;)Lio/github/yuroyami/kitecore/KiteFuture;
-	public static final fun kiteAsync (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;)Lio/github/yuroyami/kitecore/KiteFuture;
-	public static synthetic fun kiteAsync$default (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteFuture;
-}
-
-public final class io/github/yuroyami/kitecore/KiteProgress {
-	public fun <init> (Ljava/lang/Float;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/Float;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getFraction ()Ljava/lang/Float;
-	public final fun getPhase ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public abstract interface class io/github/yuroyami/kitecore/KiteProgressScope : kotlinx/coroutines/CoroutineScope {
-	public abstract fun report (JJLjava/lang/String;)V
-	public abstract fun report (Ljava/lang/Float;Ljava/lang/String;)V
-	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
-	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
-	public abstract fun slice (FLjava/lang/String;)Lio/github/yuroyami/kitecore/KiteProgressScope;
-	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/KiteProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteProgressScope;
-}
-
-public final class io/github/yuroyami/kitecore/KiteProgressScope$DefaultImpls {
-	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
-	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/KiteProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
-	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/KiteProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/KiteProgressScope;
-}
-
-public final class io/github/yuroyami/kitecore/KiteWeak {
-	public static final field Companion Lio/github/yuroyami/kitecore/KiteWeak$Companion;
-	public fun <init> (Ljava/lang/Object;)V
-	public final fun clear ()V
-	public final fun get ()Ljava/lang/Object;
-}
-
-public final class io/github/yuroyami/kitecore/KiteWeak$Companion {
-	public final fun isWeakSupported ()Z
 }
 
 public final class io/github/yuroyami/kitecore/Platform {
@@ -91,5 +32,763 @@ public final class io/github/yuroyami/kitecore/PlatformFamily : java/lang/Enum {
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/github/yuroyami/kitecore/PlatformFamily;
 	public static fun values ()[Lio/github/yuroyami/kitecore/PlatformFamily;
+}
+
+public final class io/github/yuroyami/kitecore/Progress {
+	public fun <init> (Ljava/lang/Float;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Float;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFraction ()Ljava/lang/Float;
+	public final fun getPhase ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/github/yuroyami/kitecore/ProgressFuture : kotlinx/coroutines/Deferred {
+	public abstract fun getProgress ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class io/github/yuroyami/kitecore/ProgressFuture$DefaultImpls {
+	public static synthetic fun cancel (Lio/github/yuroyami/kitecore/ProgressFuture;)V
+	public static fun fold (Lio/github/yuroyami/kitecore/ProgressFuture;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public static fun get (Lio/github/yuroyami/kitecore/ProgressFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
+	public static fun minusKey (Lio/github/yuroyami/kitecore/ProgressFuture;Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext;
+	public static fun plus (Lio/github/yuroyami/kitecore/ProgressFuture;Lkotlin/coroutines/CoroutineContext;)Lkotlin/coroutines/CoroutineContext;
+	public static fun plus (Lio/github/yuroyami/kitecore/ProgressFuture;Lkotlinx/coroutines/Job;)Lkotlinx/coroutines/Job;
+}
+
+public final class io/github/yuroyami/kitecore/ProgressFutureKt {
+	public static final fun asyncWithProgress (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;)Lio/github/yuroyami/kitecore/ProgressFuture;
+	public static synthetic fun asyncWithProgress$default (Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/CoroutineContext;Lkotlinx/coroutines/CoroutineStart;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/ProgressFuture;
+	public static final fun withProgress (Lkotlinx/coroutines/Deferred;Lkotlinx/coroutines/flow/StateFlow;)Lio/github/yuroyami/kitecore/ProgressFuture;
+}
+
+public abstract interface class io/github/yuroyami/kitecore/ProgressScope : kotlinx/coroutines/CoroutineScope {
+	public abstract fun report (JJLjava/lang/String;)V
+	public abstract fun report (Ljava/lang/Float;Ljava/lang/String;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/ProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/ProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
+	public abstract fun slice (FLjava/lang/String;)Lio/github/yuroyami/kitecore/ProgressScope;
+	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/ProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/ProgressScope;
+}
+
+public final class io/github/yuroyami/kitecore/ProgressScope$DefaultImpls {
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/ProgressScope;JJLjava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun report$default (Lio/github/yuroyami/kitecore/ProgressScope;Ljava/lang/Float;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun slice$default (Lio/github/yuroyami/kitecore/ProgressScope;FLjava/lang/String;ILjava/lang/Object;)Lio/github/yuroyami/kitecore/ProgressScope;
+}
+
+public final class io/github/yuroyami/kitecore/WeakRef {
+	public static final field Companion Lio/github/yuroyami/kitecore/WeakRef$Companion;
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun clear ()V
+	public final fun get ()Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/WeakRef$Companion {
+	public final fun isWeakSupported ()Z
+}
+
+public final class io/github/yuroyami/kitecore/collections/CollectionsKt {
+	public static final fun allEqual (Ljava/lang/Iterable;)Z
+	public static final fun anyDuplicate (Ljava/lang/Iterable;)Z
+	public static final fun associateWithIndex (Ljava/lang/Iterable;)Ljava/util/Map;
+	public static final fun cartesianProduct (Ljava/lang/Iterable;Ljava/lang/Iterable;)Ljava/util/List;
+	public static final fun chunkedBy (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun countBy (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static final fun duplicates (Ljava/lang/Iterable;)Ljava/util/Set;
+	public static final fun endsWith (Ljava/util/List;Ljava/util/List;)Z
+	public static final fun fourth (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun fourthOrNull (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun frequencies (Ljava/lang/Iterable;)Ljava/util/Map;
+	public static final fun headAndTail (Ljava/util/List;)Lkotlin/Pair;
+	public static final fun headAndTailOrNull (Ljava/util/List;)Lkotlin/Pair;
+	public static final fun indicesOf (Ljava/util/List;Ljava/lang/Object;)Ljava/util/List;
+	public static final fun interleaved (Ljava/util/List;Ljava/util/List;)Ljava/util/List;
+	public static final fun isDistinct (Ljava/lang/Iterable;)Z
+	public static final fun mapToSet (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Ljava/util/Set;
+	public static final fun middle (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun middleOrNull (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun minMaxOrNull (Ljava/lang/Iterable;)Lkotlin/Pair;
+	public static final fun mode (Ljava/lang/Iterable;)Ljava/lang/Object;
+	public static final fun move (Ljava/util/List;II)V
+	public static final fun moved (Ljava/util/List;II)Ljava/util/List;
+	public static final fun padTo (Ljava/util/List;ILjava/lang/Object;)V
+	public static final fun padded (Ljava/util/List;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun partitionIndexed (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function2;)Lkotlin/Pair;
+	public static final fun penultimate (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun penultimateOrNull (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun productOfDouble (Ljava/lang/Iterable;)D
+	public static final fun productOfInt (Ljava/lang/Iterable;)J
+	public static final fun productOfLong (Ljava/lang/Iterable;)J
+	public static final fun removeFirstWhere (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun removeLastWhere (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun repeated (Ljava/util/List;I)Ljava/util/List;
+	public static final fun replacedAt (Ljava/util/List;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun rotate (Ljava/util/List;I)V
+	public static final fun rotated (Ljava/util/List;I)Ljava/util/List;
+	public static final fun second (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun secondOrNull (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun splitAt (Ljava/util/List;I)Lkotlin/Pair;
+	public static final fun splitBy (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun startsWith (Ljava/util/List;Ljava/util/List;)Z
+	public static final fun swap (Ljava/util/List;II)V
+	public static final fun swapped (Ljava/util/List;II)Ljava/util/List;
+	public static final fun takeIfNotEmpty (Ljava/util/Collection;)Ljava/util/Collection;
+	public static final fun third (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun thirdOrNull (Ljava/util/List;)Ljava/lang/Object;
+	public static final fun toggle (Ljava/util/Set;Ljava/lang/Object;)Z
+	public static final fun toggled (Ljava/util/Set;Ljava/lang/Object;)Ljava/util/Set;
+	public static final fun transposed (Ljava/util/List;)Ljava/util/List;
+	public static final fun updateAt (Ljava/util/List;ILkotlin/jvm/functions/Function1;)V
+	public static final fun zipWithNextCircular (Ljava/util/List;)Ljava/util/List;
+}
+
+public final class io/github/yuroyami/kitecore/collections/MapsKt {
+	public static final fun filterKeysNotNull (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun filterValuesNotNull (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun inverted (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun invertedAll (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun mapKeysNotNull (Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static final fun mapValuesNotNull (Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static final fun mergeWith (Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public static final fun mergedWith (Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)Ljava/util/Map;
+	public static final fun takeIfNotEmpty (Ljava/util/Map;)Ljava/util/Map;
+}
+
+public final class io/github/yuroyami/kitecore/collections/StatsKt {
+	public static final fun median (Ljava/util/List;)D
+	public static final fun medianOfInt (Ljava/util/List;)D
+	public static final fun medianOfLong (Ljava/util/List;)D
+	public static final fun medianOrNull (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun medianOrNullOfInt (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun medianOrNullOfLong (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun percentile (Ljava/util/List;D)D
+	public static final fun percentileOfInt (Ljava/util/List;D)D
+	public static final fun percentileOfLong (Ljava/util/List;D)D
+	public static final fun percentileOrNull (Ljava/util/List;D)Ljava/lang/Double;
+	public static final fun percentileOrNullOfInt (Ljava/util/List;D)Ljava/lang/Double;
+	public static final fun percentileOrNullOfLong (Ljava/util/List;D)Ljava/lang/Double;
+	public static final fun stdDev (Ljava/util/List;)D
+	public static final fun stdDevOfInt (Ljava/util/List;)D
+	public static final fun stdDevOfLong (Ljava/util/List;)D
+	public static final fun stdDevOrNull (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun stdDevOrNullOfInt (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun stdDevOrNullOfLong (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun variance (Ljava/util/List;)D
+	public static final fun varianceOfInt (Ljava/util/List;)D
+	public static final fun varianceOfLong (Ljava/util/List;)D
+	public static final fun varianceOrNull (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun varianceOrNullOfInt (Ljava/util/List;)Ljava/lang/Double;
+	public static final fun varianceOrNullOfLong (Ljava/util/List;)Ljava/lang/Double;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/Debouncer {
+	public synthetic fun <init> (JLkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun cancel ()V
+	public final fun getWindow-UwyO8pc ()J
+	public final fun isActive ()Z
+	public final fun submit (Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/KeyedMutex {
+	public fun <init> ()V
+	public final fun activeKeyCount (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isLocked (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun withLock (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun withLockOrNull-dWUq8MI (Ljava/lang/Object;JLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/ParallelKt {
+	public static final fun awaitAllSettled (Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun awaitOrDefault-dWUq8MI (Lkotlinx/coroutines/Deferred;JLjava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun awaitOrNull-8Mi8wO0 (Lkotlinx/coroutines/Deferred;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun launchCatching (Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static final fun launchDelayed-8Mi8wO0 (Lkotlinx/coroutines/CoroutineScope;JLkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static final fun launchPeriodic-vLdBGDU (Lkotlinx/coroutines/CoroutineScope;JJLkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Job;
+	public static synthetic fun launchPeriodic-vLdBGDU$default (Lkotlinx/coroutines/CoroutineScope;JJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+	public static final fun parallelFilter (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelFilter$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelFilterNot (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelFilterNot$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelFlatMap (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelFlatMap$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelForEach (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelForEach$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelForEachIndexed (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelForEachIndexed$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelMap (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelMap$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelMapIndexed (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelMapIndexed$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelMapIndexedNotNull (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelMapIndexedNotNull$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun parallelMapNotNull (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun parallelMapNotNull$default (Ljava/lang/Iterable;ILkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/RetryKt {
+	public static final fun firstSuccessOf ([Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun raceOf ([Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun retry-dWUq8MI (IJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun retry-dWUq8MI$default (IJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun retryForever-rnQQ1Ag (JLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun retryForever-rnQQ1Ag$default (JLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun retryWithBackoff-Hhnw7CA (IJDJLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun retryWithBackoff-Hhnw7CA$default (IJDJLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun runCatchingCancellable (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun runCatchingCancellable (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTimeoutOrDefault-rnQQ1Ag (JLjava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/SingleFlight {
+	public fun <init> ()V
+	public final fun inFlightKeyCount (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isInFlight (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun run (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/SuspendLazy {
+	public final fun get (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isInitialized ()Z
+	public final fun valueOrNull ()Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/SyncKt {
+	public static final fun suspendLazy (Lkotlin/jvm/functions/Function1;)Lio/github/yuroyami/kitecore/coroutines/SuspendLazy;
+	public static final fun tryWithLock (Lkotlinx/coroutines/sync/Mutex;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun tryWithPermit (Lkotlinx/coroutines/sync/Semaphore;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun withLockOrNull-dWUq8MI (Lkotlinx/coroutines/sync/Mutex;JLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withPermitOrNull-dWUq8MI (Lkotlinx/coroutines/sync/Semaphore;JLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/coroutines/Throttler {
+	public synthetic fun <init> (JLkotlin/time/TimeSource$WithComparableMarks;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JLkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getWindow-UwyO8pc ()J
+	public final fun isThrottled ()Z
+	public final fun reset ()V
+	public final fun run (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/encoding/Base64Kt {
+	public static final fun decodeBase64 (Ljava/lang/String;)[B
+	public static final fun decodeBase64Url (Ljava/lang/String;)[B
+	public static final fun toBase64 ([B)Ljava/lang/String;
+	public static final fun toBase64Url ([B)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/encoding/BinaryKt {
+	public static final fun endsWith ([B[B)Z
+	public static final fun indexOf ([B[BI)I
+	public static synthetic fun indexOf$default ([B[BIILjava/lang/Object;)I
+	public static final fun readDoubleBe ([BI)D
+	public static final fun readDoubleLe ([BI)D
+	public static final fun readFloatBe ([BI)F
+	public static final fun readFloatLe ([BI)F
+	public static final fun readIntBe ([BI)I
+	public static final fun readIntLe ([BI)I
+	public static final fun readLongBe ([BI)J
+	public static final fun readLongLe ([BI)J
+	public static final fun readShortBe ([BI)S
+	public static final fun readShortLe ([BI)S
+	public static final fun startsWith ([B[B)Z
+	public static final fun toByteArrayBe (D)[B
+	public static final fun toByteArrayBe (F)[B
+	public static final fun toByteArrayBe (I)[B
+	public static final fun toByteArrayBe (J)[B
+	public static final fun toByteArrayBe (S)[B
+	public static final fun toByteArrayLe (D)[B
+	public static final fun toByteArrayLe (F)[B
+	public static final fun toByteArrayLe (I)[B
+	public static final fun toByteArrayLe (J)[B
+	public static final fun toByteArrayLe (S)[B
+	public static final fun writeDoubleBe ([BID)V
+	public static final fun writeDoubleLe ([BID)V
+	public static final fun writeFloatBe ([BIF)V
+	public static final fun writeFloatLe ([BIF)V
+	public static final fun writeIntBe ([BII)V
+	public static final fun writeIntLe ([BII)V
+	public static final fun writeLongBe ([BIJ)V
+	public static final fun writeLongLe ([BIJ)V
+	public static final fun writeShortBe ([BIS)V
+	public static final fun writeShortLe ([BIS)V
+	public static final fun xor ([B[B)[B
+}
+
+public final class io/github/yuroyami/kitecore/encoding/HashesKt {
+	public static final fun crc32 (Ljava/lang/String;)J
+	public static final fun crc32 ([B)J
+	public static final fun fnv1a32 (Ljava/lang/String;)I
+	public static final fun fnv1a32 ([B)I
+	public static final fun fnv1a64 (Ljava/lang/String;)J
+	public static final fun fnv1a64 ([B)J
+}
+
+public final class io/github/yuroyami/kitecore/encoding/HexKt {
+	public static final fun decodeHex (Ljava/lang/String;)[B
+	public static final fun toHex ([BZ)Ljava/lang/String;
+	public static synthetic fun toHex$default ([BZILjava/lang/Object;)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/flow/FlowsKt {
+	public static final fun asResult (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun chunked (Lkotlinx/coroutines/flow/Flow;I)Lkotlinx/coroutines/flow/Flow;
+	public static final fun chunked-8Mi8wO0 (Lkotlinx/coroutines/flow/Flow;JI)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun chunked-8Mi8wO0$default (Lkotlinx/coroutines/flow/Flow;JIILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun collectIn (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static final fun combine6 (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function7;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun combine7 (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function8;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun combine8 (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function9;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun combine9 (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function10;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun concatWith (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun concatWith (Lkotlinx/coroutines/flow/Flow;[Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun countdownFlow-HG0u8IE (IJ)Lkotlinx/coroutines/flow/Flow;
+	public static final fun deferFlow (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun dropFor-HG0u8IE (Lkotlinx/coroutines/flow/Flow;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun dropUntil (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun filterFailure (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun filterIndexed (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun filterSuccess (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun firstOrDefault (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun flattenIterable (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun flowFromSuspend (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun intersperse (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun intervalFlow-QTBD994 (JJ)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun intervalFlow-QTBD994$default (JJILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun lastOrDefault (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun mapAsync (Lkotlinx/coroutines/flow/Flow;ILkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun mapAsyncUnordered (Lkotlinx/coroutines/flow/Flow;ILkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun mapIndexed (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun mapToUnit (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun neverFlow ()Lkotlinx/coroutines/flow/Flow;
+	public static final fun onEachIndexed (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun onFirst (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun pairwise (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun pairwise (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun retryWithBackoff-fGmQEZA (Lkotlinx/coroutines/flow/Flow;IJDJLkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun retryWithBackoff-fGmQEZA$default (Lkotlinx/coroutines/flow/Flow;IJDJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun runningCount (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun startWith (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun startWith (Lkotlinx/coroutines/flow/Flow;[Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun takeFor-HG0u8IE (Lkotlinx/coroutines/flow/Flow;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun takeUntil (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun takeWhileInclusive (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun throttleFirst-HG0u8IE (Lkotlinx/coroutines/flow/Flow;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun throttleLatest-HG0u8IE (Lkotlinx/coroutines/flow/Flow;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun timeoutBetweenEmissions-HG0u8IE (Lkotlinx/coroutines/flow/Flow;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun timerFlow-LRDsOJo (J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun windowed (Lkotlinx/coroutines/flow/Flow;II)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun windowed$default (Lkotlinx/coroutines/flow/Flow;IIILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun withLatestFrom (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun withLatestFrom (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun withPrevious (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class io/github/yuroyami/kitecore/flow/StateFlowsKt {
+	public static final fun combineStates (Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/StateFlow;
+	public static final fun combineStates (Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function3;)Lkotlinx/coroutines/flow/StateFlow;
+	public static final fun combineStates (Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function4;)Lkotlinx/coroutines/flow/StateFlow;
+	public static final fun decrement (Lkotlinx/coroutines/flow/MutableStateFlow;I)I
+	public static final fun decrement (Lkotlinx/coroutines/flow/MutableStateFlow;J)J
+	public static synthetic fun decrement$default (Lkotlinx/coroutines/flow/MutableStateFlow;IILjava/lang/Object;)I
+	public static synthetic fun decrement$default (Lkotlinx/coroutines/flow/MutableStateFlow;JILjava/lang/Object;)J
+	public static final fun getAndSet (Lkotlinx/coroutines/flow/MutableStateFlow;Ljava/lang/Object;)Ljava/lang/Object;
+	public static final fun increment (Lkotlinx/coroutines/flow/MutableStateFlow;I)I
+	public static final fun increment (Lkotlinx/coroutines/flow/MutableStateFlow;J)J
+	public static synthetic fun increment$default (Lkotlinx/coroutines/flow/MutableStateFlow;IILjava/lang/Object;)I
+	public static synthetic fun increment$default (Lkotlinx/coroutines/flow/MutableStateFlow;JILjava/lang/Object;)J
+	public static final fun mapState (Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/StateFlow;
+	public static final fun stateFlowOf (Ljava/lang/Object;)Lkotlinx/coroutines/flow/StateFlow;
+	public static final fun toggle (Lkotlinx/coroutines/flow/MutableStateFlow;)Z
+}
+
+public final class io/github/yuroyami/kitecore/math/FlagsKt {
+	public static final fun getGB (I)J
+	public static final fun getGiB (I)J
+	public static final fun getKB (I)J
+	public static final fun getKiB (I)J
+	public static final fun getMB (I)J
+	public static final fun getMiB (I)J
+	public static final fun hasFlag (II)Z
+	public static final fun toggleFlag (II)I
+	public static final fun withFlag (II)I
+	public static final fun withoutFlag (II)I
+}
+
+public final class io/github/yuroyami/kitecore/math/FormatKt {
+	public static final fun ceilTo (DI)D
+	public static final fun floorTo (DI)D
+	public static final fun formatBytes (JIZ)Ljava/lang/String;
+	public static synthetic fun formatBytes$default (JIZILjava/lang/Object;)Ljava/lang/String;
+	public static final fun formatDecimals (DI)Ljava/lang/String;
+	public static final fun formatDecimals (FI)Ljava/lang/String;
+	public static final fun formatGrouped (IC)Ljava/lang/String;
+	public static final fun formatGrouped (JC)Ljava/lang/String;
+	public static synthetic fun formatGrouped$default (ICILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun formatGrouped$default (JCILjava/lang/Object;)Ljava/lang/String;
+	public static final fun formatPercent (DI)Ljava/lang/String;
+	public static synthetic fun formatPercent$default (DIILjava/lang/Object;)Ljava/lang/String;
+	public static final fun roundTo (DI)D
+	public static final fun roundTo (FI)F
+	public static final fun roundToNearest (DD)D
+	public static final fun roundToNearest (II)I
+}
+
+public final class io/github/yuroyami/kitecore/math/NumbersKt {
+	public static final fun clamp01 (D)D
+	public static final fun clamp01 (F)F
+	public static final fun digitCount (I)I
+	public static final fun digitCount (J)I
+	public static final fun digits (I)Ljava/util/List;
+	public static final fun factorial (I)J
+	public static final fun gcd (II)I
+	public static final fun gcd (JJ)J
+	public static final fun inverseLerp (DDD)D
+	public static final fun isApproximately (DDD)Z
+	public static final fun isApproximately (FFF)Z
+	public static synthetic fun isApproximately$default (DDDILjava/lang/Object;)Z
+	public static synthetic fun isApproximately$default (FFFILjava/lang/Object;)Z
+	public static final fun isEven (I)Z
+	public static final fun isEven (J)Z
+	public static final fun isOdd (I)Z
+	public static final fun isOdd (J)Z
+	public static final fun isPowerOfTwo (I)Z
+	public static final fun isPowerOfTwo (J)Z
+	public static final fun isPrime (J)Z
+	public static final fun lcm (II)J
+	public static final fun lcm (JJ)J
+	public static final fun lerp (DDD)D
+	public static final fun lerp (FFF)F
+	public static final fun midpoint (II)I
+	public static final fun midpoint (JJ)J
+	public static final fun nextPowerOfTwo (I)I
+	public static final fun ordinalSuffix (I)Ljava/lang/String;
+	public static final fun percentOf (II)D
+	public static final fun pow (II)J
+	public static final fun remap (DDDDD)D
+	public static final fun toDegrees (D)D
+	public static final fun toRadians (D)D
+	public static final fun withOrdinalSuffix (I)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/random/RandomAlphabets {
+	public static final field ALPHABETIC Ljava/lang/String;
+	public static final field ALPHANUMERIC Ljava/lang/String;
+	public static final field DIGITS Ljava/lang/String;
+	public static final field HEX_LOWER Ljava/lang/String;
+	public static final field INSTANCE Lio/github/yuroyami/kitecore/random/RandomAlphabets;
+}
+
+public final class io/github/yuroyami/kitecore/random/RandomsKt {
+	public static final fun gaussianSequence (Lkotlin/random/Random;DD)Lkotlin/sequences/Sequence;
+	public static synthetic fun gaussianSequence$default (Lkotlin/random/Random;DDILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun nextAlphabetic (Lkotlin/random/Random;I)Ljava/lang/String;
+	public static final fun nextAlphanumeric (Lkotlin/random/Random;I)Ljava/lang/String;
+	public static final fun nextBoolean (Lkotlin/random/Random;D)Z
+	public static final fun nextChar (Lkotlin/random/Random;Ljava/lang/String;)C
+	public static final fun nextDigits (Lkotlin/random/Random;I)Ljava/lang/String;
+	public static final fun nextGaussian (Lkotlin/random/Random;DD)D
+	public static synthetic fun nextGaussian$default (Lkotlin/random/Random;DDILjava/lang/Object;)D
+	public static final fun nextHexString (Lkotlin/random/Random;I)Ljava/lang/String;
+	public static final fun nextSign (Lkotlin/random/Random;)I
+	public static final fun nextString (Lkotlin/random/Random;ILjava/lang/String;)Ljava/lang/String;
+	public static final fun randomOf ([Ljava/lang/Object;Lkotlin/random/Random;)Ljava/lang/Object;
+	public static synthetic fun randomOf$default ([Ljava/lang/Object;Lkotlin/random/Random;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun sample (Ljava/util/Collection;ILkotlin/random/Random;)Ljava/util/List;
+	public static synthetic fun sample$default (Ljava/util/Collection;ILkotlin/random/Random;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun sampleOrNull (Ljava/util/Collection;ILkotlin/random/Random;)Ljava/util/List;
+	public static synthetic fun sampleOrNull$default (Ljava/util/Collection;ILkotlin/random/Random;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun sampleWithReplacement (Ljava/util/Collection;ILkotlin/random/Random;)Ljava/util/List;
+	public static synthetic fun sampleWithReplacement$default (Ljava/util/Collection;ILkotlin/random/Random;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun weightedRandom (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;)Ljava/lang/Object;
+	public static synthetic fun weightedRandom$default (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun weightedRandomIndex (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;)I
+	public static synthetic fun weightedRandomIndex$default (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;ILjava/lang/Object;)I
+	public static final fun weightedRandomOrNull (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;)Ljava/lang/Object;
+	public static synthetic fun weightedRandomOrNull$default (Ljava/util/List;Ljava/util/List;Lkotlin/random/Random;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/structures/Counter : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
+	public fun <init> ()V
+	public final fun add (Ljava/lang/Object;I)V
+	public static synthetic fun add$default (Lio/github/yuroyami/kitecore/structures/Counter;Ljava/lang/Object;IILjava/lang/Object;)V
+	public final fun clear ()V
+	public final fun count (Ljava/lang/Object;)I
+	public final fun getTotal ()I
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun mostCommon (I)Ljava/util/List;
+	public static synthetic fun mostCommon$default (Lio/github/yuroyami/kitecore/structures/Counter;IILjava/lang/Object;)Ljava/util/List;
+	public final fun plusAssign (Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;I)V
+	public static synthetic fun remove$default (Lio/github/yuroyami/kitecore/structures/Counter;Ljava/lang/Object;IILjava/lang/Object;)V
+	public final fun toMap ()Ljava/util/Map;
+}
+
+public final class io/github/yuroyami/kitecore/structures/LruCache {
+	public fun <init> (I)V
+	public final fun clear ()V
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getMaxSize ()I
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public final fun keys ()Ljava/util/Set;
+	public final fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun toMap ()Ljava/util/Map;
+}
+
+public final class io/github/yuroyami/kitecore/structures/MemoizeKt {
+	public static final fun memoize (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static final fun memoize (Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+}
+
+public final class io/github/yuroyami/kitecore/structures/ObjectPool {
+	public fun <init> (ILkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (ILkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun borrow ()Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getPooledCount ()I
+	public final fun recycle (Ljava/lang/Object;)V
+	public final fun use (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/structures/OnceFlag {
+	public fun <init> ()V
+	public final fun getHasRun ()Z
+	public final fun reset ()V
+	public final fun runOnce (Lkotlin/jvm/functions/Function0;)Z
+}
+
+public final class io/github/yuroyami/kitecore/structures/RingBuffer : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
+	public fun <init> (I)V
+	public final fun add (Ljava/lang/Object;)V
+	public final fun addAll (Ljava/lang/Iterable;)V
+	public final fun clear ()V
+	public final fun first ()Ljava/lang/Object;
+	public final fun firstOrNull ()Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getSize ()I
+	public final fun isEmpty ()Z
+	public final fun isFull ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun last ()Ljava/lang/Object;
+	public final fun lastOrNull ()Ljava/lang/Object;
+	public final fun toList ()Ljava/util/List;
+}
+
+public class io/github/yuroyami/kitecore/structures/SingletonHolder {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final fun getInstance (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/structures/TtlCache {
+	public synthetic fun <init> (JILkotlin/time/TimeSource$WithComparableMarks;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JILkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getMaxSize ()I
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public final fun getTtl-UwyO8pc ()J
+	public final fun purgeExpired ()I
+	public final fun put (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/structures/TypedKey {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getName ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/structures/TypedMap {
+	public fun <init> ()V
+	public final fun clear ()V
+	public final fun contains (Lio/github/yuroyami/kitecore/structures/TypedKey;)Z
+	public final fun get (Lio/github/yuroyami/kitecore/structures/TypedKey;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public final fun remove (Lio/github/yuroyami/kitecore/structures/TypedKey;)Ljava/lang/Object;
+	public final fun set (Lio/github/yuroyami/kitecore/structures/TypedKey;Ljava/lang/Object;)V
+}
+
+public final class io/github/yuroyami/kitecore/text/StringQueriesKt {
+	public static final fun containsAll (Ljava/lang/String;[Ljava/lang/String;Z)Z
+	public static synthetic fun containsAll$default (Ljava/lang/String;[Ljava/lang/String;ZILjava/lang/Object;)Z
+	public static final fun containsAny (Ljava/lang/String;[Ljava/lang/String;Z)Z
+	public static synthetic fun containsAny$default (Ljava/lang/String;[Ljava/lang/String;ZILjava/lang/Object;)Z
+	public static final fun countOccurrences (Ljava/lang/String;Ljava/lang/String;)I
+	public static final fun equalsAnyIgnoreCase (Ljava/lang/String;[Ljava/lang/String;)Z
+	public static final fun indexOfNth (Ljava/lang/String;Ljava/lang/String;I)I
+	public static final fun isAlpha (Ljava/lang/String;)Z
+	public static final fun isAlphanumeric (Ljava/lang/String;)Z
+	public static final fun isHex (Ljava/lang/String;)Z
+	public static final fun isNumeric (Ljava/lang/String;)Z
+	public static final fun isVowel (C)Z
+	public static final fun lineCount (Ljava/lang/String;)I
+	public static final fun nullIfBlank (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun nullIfEmpty (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toBooleanOrDefault (Ljava/lang/String;Z)Z
+	public static final fun toDoubleOrDefault (Ljava/lang/String;D)D
+	public static final fun toFloatOrDefault (Ljava/lang/String;F)F
+	public static final fun toIntOrDefault (Ljava/lang/String;I)I
+	public static final fun toLongOrDefault (Ljava/lang/String;J)J
+	public static final fun utf8Size (Ljava/lang/String;)I
+}
+
+public final class io/github/yuroyami/kitecore/text/StringTransformsKt {
+	public static final fun appendIfMissing (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun collapseWhitespace (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun digitsOnly (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun dropLines (Ljava/lang/String;I)Ljava/lang/String;
+	public static final fun firstLine (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun indent (Ljava/lang/String;I)Ljava/lang/String;
+	public static final fun lastLine (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun lettersOnly (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun mask (Ljava/lang/String;IIC)Ljava/lang/String;
+	public static synthetic fun mask$default (Ljava/lang/String;IICILjava/lang/Object;)Ljava/lang/String;
+	public static final fun padCenter (Ljava/lang/String;IC)Ljava/lang/String;
+	public static synthetic fun padCenter$default (Ljava/lang/String;ICILjava/lang/Object;)Ljava/lang/String;
+	public static final fun prependIfMissing (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun removePrefixIgnoreCase (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun removeSuffixIgnoreCase (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun removeWhitespace (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun splitToPair (Ljava/lang/String;Ljava/lang/String;)Lkotlin/Pair;
+	public static final fun substringBetween (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun takeLines (Ljava/lang/String;I)Ljava/lang/String;
+	public static final fun truncate (Ljava/lang/String;ILjava/lang/String;)Ljava/lang/String;
+	public static synthetic fun truncate$default (Ljava/lang/String;ILjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun truncateMiddle (Ljava/lang/String;ILjava/lang/String;)Ljava/lang/String;
+	public static synthetic fun truncateMiddle$default (Ljava/lang/String;ILjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun wrap (Ljava/lang/String;I)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/text/StringsKt {
+	public static final fun capitalizeFirst (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun capitalizeWords (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun decapitalizeFirst (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun initials (Ljava/lang/String;I)Ljava/lang/String;
+	public static synthetic fun initials$default (Ljava/lang/String;IILjava/lang/Object;)Ljava/lang/String;
+	public static final fun splitCamelCase (Ljava/lang/String;)Ljava/util/List;
+	public static final fun toCamelCase (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toKebabCase (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toPascalCase (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toSlug (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toSnakeCase (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/time/Deadline {
+	public synthetic fun <init> (JLkotlin/time/TimeSource$WithComparableMarks;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JLkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun await (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun checkNotExpired ()V
+	public final fun getElapsed-UwyO8pc ()J
+	public final fun getProgress ()D
+	public final fun getRemaining-UwyO8pc ()J
+	public final fun getTimeout-UwyO8pc ()J
+	public final fun isExpired ()Z
+	public final fun orNull (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/time/DurationsKt {
+	public static final fun average (Ljava/lang/Iterable;)J
+	public static final fun formatClock-LRDsOJo (J)Ljava/lang/String;
+	public static final fun formatHms-LRDsOJo (J)Ljava/lang/String;
+	public static final fun humanReadable-VtjQ1oo (JI)Ljava/lang/String;
+	public static synthetic fun humanReadable-VtjQ1oo$default (JIILjava/lang/Object;)Ljava/lang/String;
+	public static final fun parseClock (Ljava/lang/String;)J
+	public static final fun parseClockOrNull (Ljava/lang/String;)Lkotlin/time/Duration;
+	public static final fun roundToHours-LRDsOJo (J)J
+	public static final fun roundToMinutes-LRDsOJo (J)J
+	public static final fun roundToSeconds-LRDsOJo (J)J
+	public static final fun sum (Ljava/lang/Iterable;)J
+}
+
+public final class io/github/yuroyami/kitecore/time/RateLimiter {
+	public synthetic fun <init> (IJLkotlin/time/TimeSource$WithComparableMarks;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (IJLkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun acquire (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getAvailablePermits ()I
+	public final fun getPer-UwyO8pc ()J
+	public final fun getPermits ()I
+	public final fun tryAcquire ()Z
+	public final fun withPermit (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/time/Stopwatch {
+	public fun <init> ()V
+	public fun <init> (Lkotlin/time/TimeSource$WithComparableMarks;)V
+	public synthetic fun <init> (Lkotlin/time/TimeSource$WithComparableMarks;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getElapsed-UwyO8pc ()J
+	public final fun isRunning ()Z
+	public final fun measure (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun reset ()V
+	public final fun restart ()V
+	public final fun start ()V
+	public final fun stop ()V
+}
+
+public final class io/github/yuroyami/kitecore/time/TimingKt {
+	public static final fun backoffSequence-GfyngbY (JDJ)Lkotlin/sequences/Sequence;
+	public static synthetic fun backoffSequence-GfyngbY$default (JDJILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun pollUntil-O4J4VbY (JJLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withMinimumDuration-rnQQ1Ag (JLkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun withMinimumDuration-rnQQ1Ag$default (JLkotlin/time/TimeSource$WithComparableMarks;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/util/ResourcesKt {
+	public static final fun closeQuietly (Ljava/lang/AutoCloseable;)V
+	public static final fun useAll (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun useAll ([Ljava/lang/AutoCloseable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/util/ResultsKt {
+	public static final fun flatMap (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun flatten (Ljava/lang/Object;)Ljava/lang/Object;
+	public static final fun isFailureAnd (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun isSuccessAnd (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun mapFailure (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun tryOrDefault (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun tryOrElse (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun tryOrNull (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun zip (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public static final fun zip (Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/util/ScopesKt {
+	public static final fun alsoIf (Ljava/lang/Object;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun applyIf (Ljava/lang/Object;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun applyUnless (Ljava/lang/Object;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun orFalse (Ljava/lang/Boolean;)Z
+	public static final fun orTrue (Ljava/lang/Boolean;)Z
+	public static final fun toInt (Z)I
+	public static final fun transformIf (Ljava/lang/Object;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/util/TuplesKt {
+	public static final fun dropFirst (Lkotlin/Triple;)Lkotlin/Pair;
+	public static final fun dropSecond (Lkotlin/Triple;)Lkotlin/Pair;
+	public static final fun dropThird (Lkotlin/Triple;)Lkotlin/Pair;
+	public static final fun mapBoth (Lkotlin/Pair;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/Pair;
+	public static final fun mapFirst (Lkotlin/Pair;Lkotlin/jvm/functions/Function1;)Lkotlin/Pair;
+	public static final fun mapFirst (Lkotlin/Triple;Lkotlin/jvm/functions/Function1;)Lkotlin/Triple;
+	public static final fun mapSecond (Lkotlin/Pair;Lkotlin/jvm/functions/Function1;)Lkotlin/Pair;
+	public static final fun mapSecond (Lkotlin/Triple;Lkotlin/jvm/functions/Function1;)Lkotlin/Triple;
+	public static final fun mapThird (Lkotlin/Triple;Lkotlin/jvm/functions/Function1;)Lkotlin/Triple;
+	public static final fun swapped (Lkotlin/Pair;)Lkotlin/Pair;
+	public static final fun toTriple (Lkotlin/Pair;Ljava/lang/Object;)Lkotlin/Triple;
+}
+
+public final class io/github/yuroyami/kitecore/util/WeakLazy {
+	public fun <init> (Lkotlin/jvm/functions/Function0;)V
+	public final fun clear ()V
+	public final fun getValue ()Ljava/lang/Object;
+	public final fun peek ()Ljava/lang/Object;
+	public final fun refresh ()Ljava/lang/Object;
+}
+
+public final class io/github/yuroyami/kitecore/util/WeakLazyKt {
+	public static final fun weakLazy (Lkotlin/jvm/functions/Function0;)Lio/github/yuroyami/kitecore/util/WeakLazy;
 }
 

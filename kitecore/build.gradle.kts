@@ -13,15 +13,15 @@ plugins {
  * The :kitecore module builds the KiteCore runtime library.
  *
  * v0.1.0 provides:
- *   - ioDispatcher(): a unified IO CoroutineDispatcher. Dispatchers.IO on
+ *   - ioDispatcher: a unified IO CoroutineDispatcher. Dispatchers.IO on
  *     JVM, Android, and Apple (public on Native since coroutines 1.7), and
  *     an installed dispatcher or Dispatchers.Default on the web targets.
- *   - KiteWorker (js and wasmJs): an inline Blob Web Worker offload
+ *   - WebWorker (js and wasmJs): an inline Blob Web Worker offload
  *     primitive using protocol v2 (correlation ids).
  *   - Platform.current: name, osVersion, deviceModel, and family per target.
  *
  * The only dependency is kotlinx-coroutines-core, exposed via `api` because
- * ioDispatcher() returns a CoroutineDispatcher.
+ * ioDispatcher is a CoroutineDispatcher.
  */
 
 // KiteCore.VERSION is generated from the Gradle project version, which comes
@@ -53,7 +53,7 @@ val generateKiteCoreVersion by tasks.registering {
 kotlin {
     explicitApi()
 
-    // KiteWeak is an expect/actual class, which is Beta in Kotlin 2.4 and
+    // WeakRef is an expect/actual class, which is Beta in Kotlin 2.4 and
     // requires -Xexpect-actual-classes.
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")

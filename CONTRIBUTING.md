@@ -15,8 +15,8 @@ This guide covers building and contributing to KiteCore.
   committed. If you change the public surface, regenerate the dump
   (`./gradlew :kitecore:updateKotlinAbi`; check `./gradlew :kitecore:tasks --all | grep -i abi`
   if the task name differs) and include it in the same commit.
-- **The worker protocol has three implementations.** The jsMain `KiteWorker`,
-  the wasmJsMain `KiteWorker`, and kmp-ssot's `generateIoWorkerSource` implement
+- **The worker protocol has three implementations.** The jsMain `WebWorker`,
+  the wasmJsMain `WebWorker`, and kmp-ssot's `generateIoWorkerSource` implement
   one wire protocol (v2: `{ id, payload }` request, `{ id, ok, result | error }`
   reply). A protocol bug fixed in one copy must be fixed in all of them.
 - Every public declaration carries KDoc. README examples must be real outputs

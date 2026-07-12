@@ -15,18 +15,19 @@ public actual fun installIoDispatcher(dispatcher: CoroutineDispatcher) {
     installed = dispatcher
 }
 
-public actual fun ioDispatcher(): CoroutineDispatcher {
-    installed?.let { return it }
-    if (!warned) {
-        warned = true
-        wasmConsoleWarn(
-            "[KiteCore] ioDispatcher(): no Web Worker dispatcher installed; falling back to " +
-                "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
-                "leave the main thread. Use KiteWorker / kiteOffload, or supply your own Worker-backed " +
-                "CoroutineDispatcher via installIoDispatcher(...)."
-        )
+public actual val ioDispatcher: CoroutineDispatcher
+    get() {
+        installed?.let { return it }
+        if (!warned) {
+            warned = true
+            wasmConsoleWarn(
+                "[KiteCore] ioDispatcher: no Web Worker dispatcher installed; falling back to " +
+                    "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
+                    "leave the main thread. Use WebWorker / runInWorker, or supply your own Worker-backed " +
+                    "CoroutineDispatcher via installIoDispatcher(...)."
+            )
+        }
+        return Dispatchers.Default
     }
-    return Dispatchers.Default
-}
 
 private fun wasmConsoleWarn(msg: String): Unit = js("console.warn(msg)")

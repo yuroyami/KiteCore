@@ -11,13 +11,7 @@ class IoDispatcherTest {
 
     @Test
     fun io_dispatcher_runs_work() = runTest {
-        val result = withContext(ioDispatcher()) { 6 * 7 }
+        val result = withContext(ioDispatcher) { 6 * 7 }
         assertEquals(42, result)
-    }
-
-    @Test
-    fun KiteIO_resolves_to_ioDispatcher() = runTest {
-        val result = withContext(kotlinx.coroutines.Dispatchers.KiteIO) { "ok" }
-        assertEquals("ok", result)
     }
 }
