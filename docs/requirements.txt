@@ -1,0 +1,4 @@
+# Tooling for the KiteCore documentation site (https://yuroyami.github.io/KiteCore/).
+# Install with:  pip install -r docs/requirements.txt
+# Serve locally with:  mkdocs serve
+mkdocs-material>=9.5

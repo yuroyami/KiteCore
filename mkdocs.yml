@@ -1,0 +1,83 @@
+site_name: KiteCore
+site_url: https://yuroyami.github.io/KiteCore/
+site_description: >-
+  Runtime utilities for Kotlin Multiplatform: an IO dispatcher on every target,
+  progress-reporting futures, weak references in common code, platform identity,
+  Web Worker offload, and over 500 tested extension utilities.
+site_author: yuroyami
+copyright: Copyright &copy; 2026 yuroyami, Apache-2.0
+
+repo_name: yuroyami/KiteCore
+repo_url: https://github.com/yuroyami/KiteCore
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/toolbox
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - content.code.copy
+    - content.tabs.link
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Core:
+      - IO dispatcher: io-dispatcher.md
+      - Progress futures: progress-future.md
+      - Weak references: weakref.md
+      - Platform identity: platform.md
+      - Web Workers: webworker.md
+  - Extensions:
+      - Text: text.md
+      - Collections: collections.md
+      - Flow: flow.md
+      - Coroutines: coroutines.md
+      - Math: math.md
+      - Encoding: encoding.md
+      - Structures: structures.md
+      - Time: time.md
+      - Random: random.md
+      - Util: util.md
+  - API reference: https://yuroyami.github.io/KiteCore/api/
