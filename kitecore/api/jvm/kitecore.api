@@ -613,6 +613,15 @@ public final class io/github/yuroyami/kitecore/structures/TypedMap {
 	public final fun set (Lio/github/yuroyami/kitecore/structures/TypedKey;Ljava/lang/Object;)V
 }
 
+public final class io/github/yuroyami/kitecore/text/FormatterKt {
+	public static final fun format (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun format (Lkotlin/jvm/internal/StringCompanionObject;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+}
+
+public final class io/github/yuroyami/kitecore/text/StringFormatException : java/lang/IllegalArgumentException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
 public final class io/github/yuroyami/kitecore/text/StringQueriesKt {
 	public static final fun containsAll (Ljava/lang/String;[Ljava/lang/String;Z)Z
 	public static synthetic fun containsAll$default (Ljava/lang/String;[Ljava/lang/String;ZILjava/lang/Object;)Z

@@ -223,6 +223,10 @@ final class io.github.yuroyami.kitecore.structures/TypedMap { // io.github.yuroy
     final fun contains(io.github.yuroyami.kitecore.structures/TypedKey<*>): kotlin/Boolean // io.github.yuroyami.kitecore.structures/TypedMap.contains|contains(io.github.yuroyami.kitecore.structures.TypedKey<*>){}[0]
 }
 
+final class io.github.yuroyami.kitecore.text/StringFormatException : kotlin/IllegalArgumentException { // io.github.yuroyami.kitecore.text/StringFormatException|null[0]
+    constructor <init>(kotlin/String) // io.github.yuroyami.kitecore.text/StringFormatException.<init>|<init>(kotlin.String){}[0]
+}
+
 final class io.github.yuroyami.kitecore.time/Deadline { // io.github.yuroyami.kitecore.time/Deadline|null[0]
     constructor <init>(kotlin.time/Duration, kotlin.time/TimeSource.WithComparableMarks = ...) // io.github.yuroyami.kitecore.time/Deadline.<init>|<init>(kotlin.time.Duration;kotlin.time.TimeSource.WithComparableMarks){}[0]
 
@@ -484,6 +488,7 @@ final fun (kotlin/String).io.github.yuroyami.kitecore.text/digitsOnly(): kotlin/
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/dropLines(kotlin/Int): kotlin/String // io.github.yuroyami.kitecore.text/dropLines|dropLines@kotlin.String(kotlin.Int){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/equalsAnyIgnoreCase(kotlin/Array<out kotlin/String>...): kotlin/Boolean // io.github.yuroyami.kitecore.text/equalsAnyIgnoreCase|equalsAnyIgnoreCase@kotlin.String(kotlin.Array<out|kotlin.String>...){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/firstLine(): kotlin/String // io.github.yuroyami.kitecore.text/firstLine|firstLine@kotlin.String(){}[0]
+final fun (kotlin/String).io.github.yuroyami.kitecore.text/format(kotlin/Array<out kotlin/Any?>...): kotlin/String // io.github.yuroyami.kitecore.text/format|format@kotlin.String(kotlin.Array<out|kotlin.Any?>...){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/indent(kotlin/Int): kotlin/String // io.github.yuroyami.kitecore.text/indent|indent@kotlin.String(kotlin.Int){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/indexOfNth(kotlin/String, kotlin/Int): kotlin/Int // io.github.yuroyami.kitecore.text/indexOfNth|indexOfNth@kotlin.String(kotlin.String;kotlin.Int){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/initials(kotlin/Int = ...): kotlin/String // io.github.yuroyami.kitecore.text/initials|initials@kotlin.String(kotlin.Int){}[0]
@@ -520,6 +525,7 @@ final fun (kotlin/String).io.github.yuroyami.kitecore.text/truncate(kotlin/Int, 
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/truncateMiddle(kotlin/Int, kotlin/String = ...): kotlin/String // io.github.yuroyami.kitecore.text/truncateMiddle|truncateMiddle@kotlin.String(kotlin.Int;kotlin.String){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/utf8Size(): kotlin/Int // io.github.yuroyami.kitecore.text/utf8Size|utf8Size@kotlin.String(){}[0]
 final fun (kotlin/String).io.github.yuroyami.kitecore.text/wrap(kotlin/Int): kotlin/String // io.github.yuroyami.kitecore.text/wrap|wrap@kotlin.String(kotlin.Int){}[0]
+final fun (kotlin/String.Companion).io.github.yuroyami.kitecore.text/format(kotlin/String, kotlin/Array<out kotlin/Any?>...): kotlin/String // io.github.yuroyami.kitecore.text/format|format@kotlin.String.Companion(kotlin.String;kotlin.Array<out|kotlin.Any?>...){}[0]
 final fun (kotlinx.coroutines.flow/MutableStateFlow<kotlin/Boolean>).io.github.yuroyami.kitecore.flow/toggle(): kotlin/Boolean // io.github.yuroyami.kitecore.flow/toggle|toggle@kotlinx.coroutines.flow.MutableStateFlow<kotlin.Boolean>(){}[0]
 final fun (kotlinx.coroutines.flow/MutableStateFlow<kotlin/Int>).io.github.yuroyami.kitecore.flow/decrement(kotlin/Int = ...): kotlin/Int // io.github.yuroyami.kitecore.flow/decrement|decrement@kotlinx.coroutines.flow.MutableStateFlow<kotlin.Int>(kotlin.Int){}[0]
 final fun (kotlinx.coroutines.flow/MutableStateFlow<kotlin/Int>).io.github.yuroyami.kitecore.flow/increment(kotlin/Int = ...): kotlin/Int // io.github.yuroyami.kitecore.flow/increment|increment@kotlinx.coroutines.flow.MutableStateFlow<kotlin.Int>(kotlin.Int){}[0]

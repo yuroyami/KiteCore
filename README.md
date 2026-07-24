@@ -36,6 +36,7 @@ launch { open.progress.collect { showBar(it) } }
 println(Platform.current)                                          // "iOS 17.5 (iPhone15,3)"
 
 val slug = "Hello, World!".toSlug()                                // "hello-world"
+val label = String.format("%2\$s: %1\$,08d", 12_345, "items")      // "items: 0012,345"
 val size = downloaded.formatBytes()                               // "1.5 MiB"
 val cache = LruCache<String, Bitmap>(maxSize = 64)
 ```
@@ -181,7 +182,7 @@ All common code, all tested on every target. Import what you use.
 
 | Package | Highlights | |
 | --- | --- | --- |
-| `text` | `truncate`, `toSnakeCase`, `toSlug`, `mask`, `wrap`, `utf8Size` | [docs](docs/text.md) |
+| `text` | common `String.format`, `truncate`, `toSnakeCase`, `toSlug`, `mask`, `wrap`, `utf8Size` | [docs](docs/text.md) |
 | `collections` | `second()`, `swapped`, `chunkedBy`, `frequencies`, `transposed`, `median`, `percentile` | [docs](docs/collections.md) |
 | `flow` | `throttleFirst`, `mapAsync`, `retryWithBackoff`, `windowed`, `combine6..9`, `mapState` | [docs](docs/flow.md) |
 | `coroutines` | `retry`, `runCatchingCancellable`, `raceOf`, `parallelMap`, `KeyedMutex`, `suspendLazy` | [docs](docs/coroutines.md) |
