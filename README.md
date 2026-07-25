@@ -9,6 +9,9 @@ writing themselves.
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
+**[Documentation](https://yuroyami.github.io/KiteCore/)** · a page per API with
+runnable examples, plus the generated reference.
+
 ## What you get
 
 Kotlin Multiplatform leaves a few small gaps in `commonMain`. There is no name
@@ -60,12 +63,12 @@ kotlin {
 ```
 
 Coroutines come with it transitively, so you do not need to declare them
-yourself. The same artifact works in a plain Android or JVM project — you do not
-have to be using Kotlin Multiplatform.
+yourself. The same artifact works in a plain Android or JVM project. You do not have to
+be using Kotlin Multiplatform.
 
 ## The five primitives
 
-### `ioDispatcher` — one name for blocking work
+### `ioDispatcher`: one name for blocking work
 
 ```kotlin
 val data = withContext(ioDispatcher) { readFileBlocking(path) }
@@ -78,12 +81,12 @@ val data = withContext(ioDispatcher) { readFileBlocking(path) }
 
 **Read this before you use it on web.** Browsers and Node have no OS thread
 pool, so there is nothing for `ioDispatcher` to resolve to. Without setup it
-falls back to `Dispatchers.Default`, which on JS is the single main thread — so
-blocking work there will block the event loop, and you get one console warning
-rather than a fix. Call `installIoDispatcher(...)` once at startup with a real
+falls back to `Dispatchers.Default`. On JS that is the single main thread, so
+blocking work there blocks the event loop. You get one console warning, not a
+fix. Call `installIoDispatcher(...)` once at startup with a real
 off-thread dispatcher, or use `runInWorker` below.
 
-### `asyncWithProgress { }` — a future that reports progress
+### `asyncWithProgress { }`: a future that reports progress
 
 Returns a `ProgressFuture<T>`: a `Deferred<T>` that also exposes
 `progress: StateFlow<Progress>`. A `Progress` carries a fraction in `0..1` (or
@@ -100,10 +103,10 @@ val open = scope.asyncWithProgress {
 launch { open.progress.collect { render(it) } }   // or collectAsState() in Compose
 ```
 
-Use one per user-visible operation — opening a document, downloading a file —
-not per inner step.
+Use one per user-visible operation, such as opening a document or downloading a
+file. Do not use one per inner step.
 
-### `WeakRef<T>` — a weak reference in common code
+### `WeakRef<T>`: a weak reference in common code
 
 ```kotlin
 val ref = WeakRef(bitmap)
@@ -117,7 +120,7 @@ val cached = ref.get()   // null once collected
 
 Check `WeakRef.isWeakSupported` before relying on collection for correctness.
 
-### `Platform.current` — what am I running on
+### `Platform.current`: what am I running on
 
 ```kotlin
 println(Platform.current)   // "Android 14 (API 34) (Google Pixel 8)"
@@ -131,7 +134,7 @@ when (Platform.current.family) {
 Fields are `name`, `osVersion`, `deviceModel` and `family`. Values are
 best-effort and can be empty when the host does not report them.
 
-### `WebWorker` — run JavaScript off the main thread
+### `WebWorker`: run JavaScript off the main thread
 
 Available on `js` and `wasmJs` only.
 
@@ -178,7 +181,7 @@ retryWithBackoff(times = 5, initialDelay = 200.milliseconds) { api.sync() }
 `iosArm64`, `iosSimulatorArm64`, `iosX64`, `macosArm64`, `js` (browser and
 Node), `wasmJs` (browser and Node).
 
-`macosX64` is not built — Kotlin 2.4 deprecated the target.
+`macosX64` is not built. Kotlin 2.4 deprecated the target.
 
 ## Limits
 
@@ -198,17 +201,12 @@ The public API is exercised on eight target runs: JVM, Android host, iOS
 simulator, macOS, JS (browser and Node) and Wasm (browser and Node). 694 tests.
 Every public top-level function is referenced by a test except `throttleLatest`.
 
-## Documentation
-
-[Guides and full API reference](https://yuroyami.github.io/KiteCore/) — a page
-per API with runnable examples, and the generated reference for everything else.
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). The public API is guarded by an ABI
-dump; regenerate it with `./gradlew :kitecore:updateKotlinAbi` when you change
-the surface. Changes ship with tests, and the web targets are where the subtle
-bugs are.
+dump. Regenerate it with `./gradlew :kitecore:updateKotlinAbi` when you change
+the surface. Every change ships with tests. Most subtle bugs show up on the web
+targets, so test there.
 
 ## License
 
