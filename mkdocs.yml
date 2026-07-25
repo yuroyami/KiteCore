@@ -1,11 +1,8 @@
 site_name: KiteCore
 site_url: https://yuroyami.github.io/KiteCore/
-site_description: >-
-  Runtime utilities for Kotlin Multiplatform: an IO dispatcher on every target,
-  progress-reporting futures, weak references in common code, platform identity,
-  Web Worker offload, and over 500 tested extension utilities.
+site_description: "Small runtime utilities for Kotlin Multiplatform: an IO dispatcher on every target, progress-reporting futures, weak references in common code, platform identity, Web Worker offload, and about 450 tested extension functions."
 site_author: yuroyami
-copyright: Copyright &copy; 2026 yuroyami, Apache-2.0
+copyright: Apache-2.0
 
 repo_name: yuroyami/KiteCore
 repo_url: https://github.com/yuroyami/KiteCore
@@ -18,44 +15,55 @@ theme:
   language: en
   icon:
     repo: fontawesome/brands/github
-    logo: material/toolbox
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: teal
-      accent: teal
+      primary: black
+      accent: deep purple
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: teal
-      accent: teal
+      primary: black
+      accent: deep purple
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
   features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.top
+    - navigation.instant
     - navigation.tracking
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
     - content.code.copy
+    - content.code.annotate
     - content.tabs.link
     - search.suggest
     - search.highlight
+    - search.share
+
+extra_css:
+  - theme/kite.css
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
+  - tables
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.inlinehilite
-  - tables
+      line_spans: __span
   - toc:
       permalink: true
+      toc_depth: 3
 
 plugins:
   - search
