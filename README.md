@@ -113,7 +113,7 @@ val ref = WeakRef(bitmap)
 val cached = ref.get()   // null once collected
 ```
 
-| Target | Behaviour |
+| Target | Behavior |
 | --- | --- |
 | JVM, Android, Apple, JS (ES2021+) | a real weak reference |
 | Wasm, older JS | holds strongly; `WeakRef.isWeakSupported` is `false` |
