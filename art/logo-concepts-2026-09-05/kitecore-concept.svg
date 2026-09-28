@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+<title id="title">KiteCore: Shared nucleus</title>
+<desc id="desc">Four matching structural brackets converge around one diamond nucleus, representing shared primitives and a common foundation. A short-tailed geometric kite in Kotlin violet, magenta and orange.</desc>
+<defs>
+<linearGradient id="sail" gradientUnits="userSpaceOnUse" x1="352" y1="256" x2="672" y2="576">
+ <stop offset="0" stop-color="#7F52FF"/><stop offset="0.333333" stop-color="#7136F4"/>
+ <stop offset="0.333333" stop-color="#BC35E8"/><stop offset="0.666667" stop-color="#D63BDD"/>
+ <stop offset="0.666667" stop-color="#FF8C25"/><stop offset="1" stop-color="#FF6950"/>
+</linearGradient>
+<linearGradient id="tail" gradientUnits="userSpaceOnUse" x1="500" y1="736" x2="570" y2="944">
+ <stop offset="0" stop-color="#7136F4"/><stop offset="0.333333" stop-color="#7F42FC"/>
+ <stop offset="0.333333" stop-color="#BC35E8"/><stop offset="0.666667" stop-color="#D63BDD"/>
+ <stop offset="0.666667" stop-color="#FF8C25"/><stop offset="1" stop-color="#FF7840"/>
+</linearGradient>
+<clipPath id="inner"><path d="M512 152L776 416L512 680L248 416Z"/></clipPath>
+</defs>
+<polygon fill="url(#tail)" transform="translate(512 736) scale(.7) translate(-512 -736)" points="512,716 472,786 546,838 494,898 574,956 574,920 536,892 586,832 512,780 532,728"/>
+<path fill="url(#sail)" d="M512 96L832 416L512 736L192 416Z"/>
+<g fill="#FFFFFF"><path d="M417 281L512 186L607 281L578 310L512 244L446 310ZM647 321L742 416L647 511L618 482L684 416L618 350ZM607 551L512 646L417 551L446 522L512 588L578 522ZM377 511L282 416L377 321L406 350L340 416L406 482Z"/>
+    <path d="M512 329L599 416L512 503L425 416Z"/></g></svg>
