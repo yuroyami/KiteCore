@@ -12,10 +12,17 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 
 class RetryTest {
 
@@ -62,12 +69,39 @@ class RetryTest {
         val job = launch {
             retryWithBackoff<Unit>(times = 5, initialDelay = 10.milliseconds) {
                 attempts++
-                throw CancellationException("stop")
+                awaitCancellation()
             }
         }
+        runCurrent()
+        job.cancel()
         job.join()
         assertTrue(job.isCancelled)
         assertEquals(1, attempts)
+    }
+
+    @Test
+    fun retryWithBackoffRetriesTimeoutsInsideTheBlock() = runTest {
+        var attempts = 0
+        val value = retryWithBackoff(times = 3, initialDelay = 10.milliseconds) { attempt ->
+            attempts++
+            withTimeout(50.milliseconds) {
+                if (attempt < 3) awaitCancellation()
+                "ok"
+            }
+        }
+        assertEquals("ok", value)
+        assertEquals(3, attempts)
+    }
+
+    @Test
+    fun retryWithBackoffRethrowsTheLastTimeoutUnchanged() = runTest {
+        val failure = assertFailsWith<TimeoutCancellationException> {
+            retryWithBackoff<Unit>(times = 2, initialDelay = 10.milliseconds) {
+                withTimeout(50.milliseconds) { awaitCancellation() }
+            }
+        }
+        assertIs<TimeoutCancellationException>(failure)
+        assertTrue(currentCoroutineContext().isActive)
     }
 
     @Test
@@ -99,9 +133,45 @@ class RetryTest {
     fun runCatchingCancellableRethrowsCancellation() = runTest {
         var reached = false
         val job = launch {
-            runCatchingCancellable<Unit> { throw CancellationException("stop") }
+            runCatchingCancellable<Unit> { awaitCancellation() }
             reached = true
         }
+        runCurrent()
+        job.cancel()
+        job.join()
+        assertTrue(job.isCancelled)
+        assertFalse(reached)
+    }
+
+    @Test
+    fun runCatchingCancellableCapturesCancellationThatIsNotTheCallers() = runTest {
+        val timedOut = runCatchingCancellable<Unit> { withTimeout(10.milliseconds) { awaitCancellation() } }
+        assertIs<TimeoutCancellationException>(timedOut.exceptionOrNull())
+
+        val cancelledElsewhere = CompletableDeferred<Int>().apply { cancel() }
+        val awaited = runCatchingCancellable { cancelledElsewhere.await() }
+        assertIs<CancellationException>(awaited.exceptionOrNull())
+
+        val thrown = runCatchingCancellable<Unit> { throw CancellationException("not ours") }
+        assertIs<CancellationException>(thrown.exceptionOrNull())
+        assertTrue(currentCoroutineContext().isActive)
+    }
+
+    @Test
+    fun runCatchingCancellableNeverReturnsToACancelledCaller() = runTest {
+        var reached = false
+        val job = launch {
+            runCatchingCancellable<Unit> {
+                try {
+                    awaitCancellation()
+                } finally {
+                    throw IllegalStateException("cleanup failed")
+                }
+            }
+            reached = true
+        }
+        runCurrent()
+        job.cancel()
         job.join()
         assertTrue(job.isCancelled)
         assertFalse(reached)
@@ -120,11 +190,19 @@ class RetryTest {
     fun runCatchingCancellableWithReceiverRethrowsCancellation() = runTest {
         var reached = false
         val job = launch {
-            "abc".runCatchingCancellable<String, Int> { throw CancellationException("stop") }
+            "abc".runCatchingCancellable<String, Int> { awaitCancellation() }
             reached = true
         }
+        runCurrent()
+        job.cancel()
         job.join()
         assertTrue(job.isCancelled)
         assertFalse(reached)
+    }
+
+    @Test
+    fun runCatchingCancellableWithReceiverCapturesATimeout() = runTest {
+        val timedOut = "abc".runCatchingCancellable<String, Int> { withTimeout(10.milliseconds) { awaitCancellation() } }
+        assertIs<TimeoutCancellationException>(timedOut.exceptionOrNull())
     }
 }

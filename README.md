@@ -32,7 +32,7 @@ import io.github.yuroyami.kitecore.text.format
 // Blocking work, off the main thread, on every target.
 val bytes = withContext(ioDispatcher) { readFileBlocking(path) }
 
-// A Deferred that also publishes progress while it runs.
+// An async operation that also publishes progress while it runs.
 val job = scope.asyncWithProgress {
     repeat(100) { i ->
         delay(10)
@@ -85,8 +85,9 @@ off-thread dispatcher. KiteCore does not ship one.
 
 ### `asyncWithProgress { }`: a future that reports progress
 
-Returns a `ProgressFuture<T>`: a `Deferred<T>` that also exposes
-`progress: StateFlow<Progress>`. A `Progress` carries a fraction in `0..1` (or
+Returns a `ProgressFuture<T>`: the running operation as a `Deferred<T>`, plus
+`progress: StateFlow<Progress>`. `await()` and `cancel()` work directly; use
+`deferred` for `awaitAll` or `select`. A `Progress` carries a fraction in `0..1` (or
 `null` while the total is unknown) and a phase label. It reaches `1f` on success
 and freezes at its last value on failure or cancellation.
 
@@ -151,8 +152,8 @@ are not supported.
 
 | Package | API | What it does |
 | --- | --- | --- |
-| `coroutines` | `retryWithBackoff` | Retries with growing pauses. Never retries cancellation. |
-| `coroutines` | `runCatchingCancellable` | `runCatching` that lets cancellation through. |
+| `coroutines` | `retryWithBackoff` | Retries with growing pauses. Retries timeouts, never the caller's cancellation. |
+| `coroutines` | `runCatchingCancellable` | `runCatching` that never swallows the caller's cancellation. |
 | `coroutines` | `parallelMap`, `parallelForEach` | Parallel work with a concurrency limit. |
 | `coroutines` | `SingleFlight` | Concurrent calls with the same key share one execution. |
 | `coroutines` | `suspendLazy` | A lazy value whose initializer can suspend. Failures are not cached. |
@@ -190,7 +191,8 @@ Node), `wasmJs` (browser and Node).
 ## Testing
 
 The public API is exercised on eight target runs: JVM, Android host, iOS
-simulator, macOS, JS (browser and Node) and Wasm (browser and Node). 77 tests.
+simulator, macOS, JS (browser and Node) and Wasm (browser and Node). 107 tests,
+including a seeded comparison of `String.format` against the JVM formatter.
 Every public function and class is referenced by a test.
 
 ## Contributing

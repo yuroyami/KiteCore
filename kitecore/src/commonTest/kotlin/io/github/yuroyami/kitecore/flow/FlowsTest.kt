@@ -9,9 +9,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
@@ -74,5 +79,58 @@ class FlowsTest {
     fun invalidArgumentsFailBeforeCollection() {
         assertFailsWith<IllegalArgumentException> { emptyFlow<Int>().throttleFirst(Duration.ZERO) }
         assertFailsWith<IllegalArgumentException> { emptyFlow<Int>().mapAsync(0) { it } }
+    }
+
+    @Test
+    fun throttleFirstCompletesWithoutWaitingForTheOpenWindow() = runTest {
+        val start = currentTime
+        assertEquals(listOf(1), flowOf(1, 2, 3).throttleFirst(1.hours).toList())
+        assertEquals(0L, currentTime - start)
+    }
+
+    @Test
+    fun throttleFirstPropagatesUpstreamFailure() = runTest {
+        val failure = assertFailsWith<IllegalStateException> {
+            flow {
+                emit(1)
+                throw IllegalStateException("upstream")
+            }.throttleFirst(100.milliseconds).toList()
+        }
+        assertEquals("upstream", failure.message)
+    }
+
+    @Test
+    fun mapAsyncPropagatesUpstreamFailure() = runTest {
+        val failure = assertFailsWith<IllegalStateException> {
+            flow {
+                emit(1)
+                throw IllegalStateException("upstream")
+            }.mapAsync(concurrency = 2) { it }.toList()
+        }
+        assertEquals("upstream", failure.message)
+    }
+
+    @Test
+    fun mapAsyncCancelsInFlightTransformsWhenTheCollectorStops() = runTest {
+        var running = 0
+        var cancelled = 0
+        val othersRunning = CompletableDeferred<Unit>()
+        val first = flowOf(1, 2, 3)
+            .mapAsync(concurrency = 3) { value ->
+                if (value == 1) {
+                    othersRunning.await()
+                    return@mapAsync value
+                }
+                if (++running == 2) othersRunning.complete(Unit)
+                try {
+                    awaitCancellation()
+                } catch (e: CancellationException) {
+                    cancelled++
+                    throw e
+                }
+            }
+            .first()
+        assertEquals(1, first)
+        assertEquals(2, cancelled)
     }
 }

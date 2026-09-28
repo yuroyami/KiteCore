@@ -40,14 +40,14 @@ Branch on `family`, not on `name`, and never by parsing `osVersion` or `deviceMo
 |---|---|---|---|
 | Android | `"Android"` | release and API level, e.g. `"15 (API 35)"` | manufacturer and model, e.g. `"Google Pixel 8"` |
 | JVM | `"JVM"` | OS name and version, e.g. `"Mac OS X 15.3"` | CPU architecture, e.g. `"aarch64"` |
-| iOS | `"iOS"` | OS version, e.g. `"17.4"` | hardware identifier, e.g. `"iPhone15,3"` |
+| iOS | `"iOS"` | OS version, e.g. `"17.4"` | hardware identifier, e.g. `"iPhone15,3"`; on the simulator, the simulated device |
 | macOS | `"macOS"` | OS version, e.g. `"15.3.1"` | hardware model, e.g. `"Mac14,2"` |
 | js | `"JS"` | browser user agent, or `"Node v22.11.0"` under Node | navigator platform, e.g. `"macOS"`, or `"darwin arm64"` under Node |
 | wasmJs | `"Wasm"` | browser user agent, or `"Node v22.11.0"` under Node | navigator platform, e.g. `"macOS"`, or `"darwin arm64"` under Node |
 
 ## What toString produces
 
-`toString()` is `"$name $osVersion ($deviceModel)"`, one line suitable for logs and bug reports:
+`toString()` is `"$name $osVersion ($deviceModel)"`, one line suitable for logs and bug reports. Empty parts are left out, so an unknown device model adds no `()`:
 
 | Target | Example output |
 |---|---|

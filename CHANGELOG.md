@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 KiteCore now keeps only the APIs that fill a real gap in `commonMain`. This is
-a breaking change. Every kept API has the same signature as in 0.1.0.
+a breaking change. Every kept API has the same signature as in 0.1.0, except
+`ProgressFuture` and `ProgressScope` (see Changed).
 
 ### Removed
 
@@ -24,7 +25,37 @@ a breaking change. Every kept API has the same signature as in 0.1.0.
 
 ### Changed
 
+- `ProgressFuture` is now a class that holds the operation as `deferred`,
+  instead of extending `Deferred`. kotlinx-coroutines does not support
+  inheriting `Deferred`. `await()` and `cancel()` work as before.
+- `ProgressScope` is a sealed interface.
+- Progress reports have no effect after the operation finishes, fails, or is
+  cancelled. A late report from another thread can no longer move a finished bar.
+- `runCatchingCancellable` and `retryWithBackoff` treat only the caller's own
+  cancellation as cancellation. A `CancellationException` from inside the
+  block, such as the timeout of a `withTimeout`, is now captured or retried.
+  Before, it was rethrown and silently stopped the calling coroutine.
+- `SingleFlight` shares a timeout inside the block with the joining callers,
+  like any other failure. Before, the joining callers ran the block again.
+- `parallelMap` and `parallelForEach` run a fixed pool of `concurrency`
+  workers when the input is larger than `concurrency`, instead of starting one
+  coroutine per element.
+- `String.format` of very large and very small doubles is roughly 30 to 280
+  times faster, depending on the target. The output is unchanged.
+- `Platform.toString()` leaves out empty parts.
 - The web fallback warning of `ioDispatcher` no longer points to `WebWorker`.
+
+### Fixed
+
+- `SingleFlight.run` and `SuspendLazy.get` waited forever when called again
+  from inside their own block. They now fail with `IllegalStateException`.
+- `Progress(-0f)` was equal to `Progress(0f)` but had a different hash code.
+- On the iOS simulator, `Platform.current.deviceModel` was the CPU of the host
+  (`arm64`). It is now the simulated device.
+- On Apple targets, the device model lookup now handles an empty system value
+  safely.
+- On the JVM, a security manager that denies property reads no longer makes
+  `Platform.current` fail.
 
 ### Migration
 
@@ -47,6 +78,7 @@ Most removed APIs have a direct replacement in the Kotlin standard library
 | `nextAlphanumeric` and the other random string helpers | `Uuid.random()` for identifiers |
 | `tryOrNull`, `tryOrDefault` | `runCatching { }.getOrNull()` and `getOrDefault(...)` |
 | `Counter`, `frequencies`, `countBy` | `groupingBy { }.eachCount()` |
+| `ProgressFuture` used as a `Deferred` | `future.await()` and `future.cancel()` still work. For `awaitAll`, `select`, and other `Deferred` APIs, use `future.deferred`. |
 
 `format` rounds the way the JVM formatter does. For example,
 `"%.2f".format(1.005)` gives `1.01`, where `1.005.formatDecimals(2)` gave `1.00`.

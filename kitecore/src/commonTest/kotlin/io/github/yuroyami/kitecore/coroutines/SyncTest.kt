@@ -8,16 +8,31 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 
 class SyncTest {
 
@@ -201,5 +216,127 @@ class SyncTest {
         assertEquals(2, outcome)
         assertEquals(2, calls)
         assertTrue(lazyValue.isInitialized)
+    }
+
+    @Test
+    fun singleFlightSharesATimeoutInsideTheBlockInsteadOfRunningAgain() = runTest {
+        val flight = SingleFlight<String, Int>()
+        var executions = 0
+        val gate = CompletableDeferred<Unit>()
+        val owner = async {
+            runCatching {
+                flight.run("key") {
+                    executions++
+                    gate.await()
+                    withTimeout(1.milliseconds) { awaitCancellation() }
+                }
+            }
+        }
+        runCurrent()
+        val joiner = async {
+            runCatching {
+                flight.run("key") {
+                    executions++
+                    42
+                }
+            }
+        }
+        runCurrent()
+        gate.complete(Unit)
+        assertIs<TimeoutCancellationException>(owner.await().exceptionOrNull())
+        assertIs<TimeoutCancellationException>(joiner.await().exceptionOrNull())
+        assertEquals(1, executions)
+        assertEquals(0, flight.inFlightKeyCount())
+    }
+
+    @Test
+    fun singleFlightRejectsAReentrantCallForTheSameKey() = runTest {
+        val flight = SingleFlight<String, Int>()
+        val failure = assertFailsWith<IllegalStateException> {
+            withTimeout(5.seconds) {
+                flight.run("key") { flight.run("key") { 1 } }
+            }
+        }
+        assertFalse(failure is CancellationException, "expected a fast failure, got $failure")
+        assertEquals(0, flight.inFlightKeyCount())
+    }
+
+    @Test
+    fun singleFlightRejectsAReentrantCallFromAChildCoroutine() = runTest {
+        val flight = SingleFlight<String, Int>()
+        val failure = assertFailsWith<IllegalStateException> {
+            withTimeout(5.seconds) {
+                flight.run("key") {
+                    coroutineScope { async { flight.run("key") { 1 } }.await() }
+                }
+            }
+        }
+        assertFalse(failure is CancellationException, "expected a fast failure, got $failure")
+    }
+
+    @Test
+    fun singleFlightAllowsOtherKeysFromInsideABlock() = runTest {
+        val flight = SingleFlight<String, Int>()
+        val value = flight.run("outer") { flight.run("inner") { 2 } + 1 }
+        assertEquals(3, value)
+    }
+
+    @Test
+    fun singleFlightHoldsUpUnderRealThreads() = runTest {
+        val flight = SingleFlight<Int, Int>()
+        val executions = MutableStateFlow(0)
+        val results = withContext(Dispatchers.Default) {
+            (0 until 400).map { caller ->
+                async {
+                    val key = caller % 8
+                    flight.run(key) {
+                        executions.update { it + 1 }
+                        yield()
+                        key * 10
+                    }
+                }
+            }.awaitAll()
+        }
+        assertEquals((0 until 400).map { (it % 8) * 10 }, results)
+        assertTrue(executions.value in 8..400, "executions = ${executions.value}")
+        assertEquals(0, flight.inFlightKeyCount())
+    }
+
+    @Test
+    fun suspendLazyRejectsAReentrantGet() = runTest {
+        lateinit var lazyValue: SuspendLazy<Int>
+        lazyValue = suspendLazy { lazyValue.get() + 1 }
+        val failure = assertFailsWith<IllegalStateException> {
+            withTimeout(5.seconds) { lazyValue.get() }
+        }
+        assertFalse(failure is CancellationException, "expected a fast failure, got $failure")
+        assertFalse(lazyValue.isInitialized)
+    }
+
+    @Test
+    fun suspendLazyRejectsAReentrantGetFromAChildCoroutine() = runTest {
+        lateinit var lazyValue: SuspendLazy<Int>
+        lazyValue = suspendLazy {
+            coroutineScope { async { lazyValue.get() }.await() } + 1
+        }
+        val failure = assertFailsWith<IllegalStateException> {
+            withTimeout(5.seconds) { lazyValue.get() }
+        }
+        assertFalse(failure is CancellationException, "expected a fast failure, got $failure")
+    }
+
+    @Test
+    fun suspendLazyInitializesOnceUnderRealThreads() = runTest {
+        val initializations = MutableStateFlow(0)
+        val lazyValue = suspendLazy {
+            initializations.update { it + 1 }
+            yield()
+            "value"
+        }
+        val values = withContext(Dispatchers.Default) {
+            (0 until 200).map { async { lazyValue.get() } }.awaitAll()
+        }
+        assertTrue(values.all { it == "value" })
+        assertEquals(1, initializations.value)
     }
 }

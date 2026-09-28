@@ -679,19 +679,93 @@ private fun exactBinaryDecimal(value: Double): ExactDecimal {
         binaryExponent = exponentBits - 1023 - 52
     }
 
-    var digits = significand.toString()
+    // significand * 2^e is an integer for e >= 0. For e < 0 it equals significand * 5^-e / 10^-e,
+    // so both cases multiply an integer by a power of 2 or 5.
+    val number = DecimalLimbs(significand)
     var scale = 0
     if (binaryExponent >= 0) {
-        repeat(binaryExponent) { digits = multiplyDecimalString(digits, 2) }
+        number.multiplyByPower(base = 2, exponent = binaryExponent)
     } else {
         scale = -binaryExponent
-        repeat(scale) { digits = multiplyDecimalString(digits, 5) }
+        number.multiplyByPower(base = 5, exponent = scale)
     }
-    while (scale > 0 && digits.length > 1 && digits.endsWith('0')) {
-        digits = digits.dropLast(1)
+    val digits = number.toDecimalString()
+    var end = digits.length
+    while (scale > 0 && end > 1 && digits[end - 1] == '0') {
+        end--
         scale--
     }
-    return ExactDecimal(digits, scale)
+    return ExactDecimal(if (end == digits.length) digits else digits.substring(0, end), scale)
+}
+
+private const val LIMB_BASE: Int = 10_000
+
+/*
+ * A non-negative integer as little-endian base-10000 limbs. The limbs stay small
+ * enough that every step is Int arithmetic, which is fast on every target;
+ * Kotlin/JS emulates Long.
+ */
+private class DecimalLimbs(initial: Long) {
+    private var limbs = IntArray(8)
+    private var size = 0
+
+    init {
+        var remaining = initial
+        while (remaining > 0L) {
+            append((remaining % LIMB_BASE).toInt())
+            remaining /= LIMB_BASE
+        }
+    }
+
+    fun multiplyByPower(base: Int, exponent: Int) {
+        // The largest factors that keep limb * factor + carry below Int.MAX_VALUE: 2^17 and 5^7.
+        val chunkExponent = if (base == 2) 17 else 7
+        val chunkFactor = pow(base, chunkExponent)
+        var remaining = exponent
+        while (remaining >= chunkExponent) {
+            multiply(chunkFactor)
+            remaining -= chunkExponent
+        }
+        if (remaining > 0) multiply(pow(base, remaining))
+    }
+
+    fun toDecimalString(): String {
+        if (size == 0) return "0"
+        val builder = StringBuilder(size * 4)
+        builder.append(limbs[size - 1])
+        for (index in size - 2 downTo 0) {
+            val limb = limbs[index]
+            if (limb < 1000) builder.append('0')
+            if (limb < 100) builder.append('0')
+            if (limb < 10) builder.append('0')
+            builder.append(limb)
+        }
+        return builder.toString()
+    }
+
+    private fun multiply(factor: Int) {
+        var carry = 0
+        for (index in 0 until size) {
+            val product = limbs[index] * factor + carry
+            limbs[index] = product % LIMB_BASE
+            carry = product / LIMB_BASE
+        }
+        while (carry > 0) {
+            append(carry % LIMB_BASE)
+            carry /= LIMB_BASE
+        }
+    }
+
+    private fun append(limb: Int) {
+        if (size == limbs.size) limbs = limbs.copyOf(size * 2)
+        limbs[size++] = limb
+    }
+
+    private fun pow(base: Int, exponent: Int): Int {
+        var result = 1
+        repeat(exponent) { result *= base }
+        return result
+    }
 }
 
 private fun roundedDecimalUnits(decimal: ExactDecimal, fractionDigits: Int): String {
@@ -882,21 +956,6 @@ private fun highestSetBit(value: Long): Int {
     var bit = 63
     while (bit > 0 && (value and (1L shl bit)) == 0L) bit--
     return bit
-}
-
-private fun multiplyDecimalString(value: String, factor: Int): String {
-    val output = StringBuilder(value.length + 1)
-    var carry = 0
-    for (index in value.lastIndex downTo 0) {
-        val product = (value[index] - '0') * factor + carry
-        output.append(('0'.code + product % 10).toChar())
-        carry = product / 10
-    }
-    while (carry > 0) {
-        output.append(('0'.code + carry % 10).toChar())
-        carry /= 10
-    }
-    return output.reverse().toString()
 }
 
 private fun incrementDecimalString(value: String): String {

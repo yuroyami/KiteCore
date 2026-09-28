@@ -114,6 +114,27 @@ class StringFormatTest {
     }
 
     @Test
+    fun extremeFloatingPointValuesMatchJvmGoldens() {
+        // Values at the ends of the Double range take the longest exact-decimal path.
+        assertEquals("4.900000e-324", "%e".format(Double.MIN_VALUE))
+        assertEquals("2.2250738585072014e-308", "%.17g".format(2.2250738585072014E-308))
+        assertEquals("1.000e-300", "%.3e".format(1e-300))
+        assertEquals("1.79769e+308", "%g".format(Double.MAX_VALUE))
+        assertEquals("1" + "0".repeat(308), "%.0f".format(1e308))
+        assertEquals("17976931348623157" + "0".repeat(292) + ".000000", "%f".format(Double.MAX_VALUE))
+        assertEquals("1.00000000000000000000e-01", "%.20e".format(0.1))
+        assertEquals("0." + "0".repeat(30), "%.30f".format(Double.MIN_VALUE))
+        assertEquals("4.35", "%.2f".format(4.35))
+        assertEquals("0.1", "%.1f".format(0.05))
+        assertEquals("2.001", "%.3f".format(2.0005))
+        assertEquals("123,456,789.13", "%,.2f".format(123456789.125))
+        assertEquals("9.007199254740992e+15", "%.15e".format(9007199254740993.0))
+        assertEquals("1.234568e+20", "%e".format(123456789012345680000.0))
+        assertEquals("1e+01", "%.0e".format(9.5))
+        assertEquals("1", "%.1g".format(0.95))
+    }
+
+    @Test
     fun erasedRuntimeNumericGroupsUseConversionDirectedSemantics() {
         val byteType = (1.toByte() as Any)::class
         val byteWidthIsErased =

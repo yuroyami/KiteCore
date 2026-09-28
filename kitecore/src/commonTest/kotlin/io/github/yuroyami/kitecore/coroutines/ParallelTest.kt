@@ -10,10 +10,16 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 class ParallelTest {
 
@@ -102,5 +108,59 @@ class ParallelTest {
             delay(50)
         }
         assertEquals(200, currentTime - start)
+    }
+
+    @Test
+    fun parallelMapHandlesAnEmptyInputAndMoreWorkersThanElements() = runTest {
+        assertEquals(emptyList(), emptyList<Int>().parallelMap(concurrency = 4) { it })
+        assertEquals(listOf(2, 4), listOf(1, 2).parallelMap(concurrency = 64) { it * 2 })
+        var visited = 0
+        emptyList<Int>().parallelForEach(concurrency = 4) { visited++ }
+        assertEquals(0, visited)
+    }
+
+    @Test
+    fun parallelMapProcessesALargeInputWithASmallPool() = runTest {
+        val input = (0 until 20_000).toList()
+        val output = input.parallelMap(concurrency = 4) { element ->
+            if (element % 1_000 == 0) yield()
+            element + 1
+        }
+        assertEquals(input.map { it + 1 }, output)
+    }
+
+    @Test
+    fun parallelMapKeepsTheLimitUnderRealThreads() = runTest {
+        val active = MutableStateFlow(0)
+        val maxActive = MutableStateFlow(0)
+        val output = withContext(Dispatchers.Default) {
+            (1..200).toList().parallelMap(concurrency = 3) { element ->
+                val now = active.updateAndGet { it + 1 }
+                maxActive.update { maxOf(it, now) }
+                yield()
+                active.update { it - 1 }
+                element
+            }
+        }
+        assertEquals((1..200).toList(), output)
+        assertTrue(maxActive.value in 1..3, "maxActive = ${maxActive.value}")
+    }
+
+    @Test
+    fun parallelForEachKeepsTheLimitUnderRealThreads() = runTest {
+        val active = MutableStateFlow(0)
+        val maxActive = MutableStateFlow(0)
+        val visited = MutableStateFlow(0)
+        withContext(Dispatchers.Default) {
+            (1..200).toList().parallelForEach(concurrency = 3) {
+                val now = active.updateAndGet { it + 1 }
+                maxActive.update { maxOf(it, now) }
+                yield()
+                active.update { it - 1 }
+                visited.update { it + 1 }
+            }
+        }
+        assertEquals(200, visited.value)
+        assertTrue(maxActive.value in 1..3, "maxActive = ${maxActive.value}")
     }
 }

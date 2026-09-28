@@ -5,6 +5,8 @@ package io.github.yuroyami.kitecore.coroutines
 import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -25,52 +27,76 @@ import kotlinx.coroutines.withContext
  */
 public class SingleFlight<K, T> {
 
+    private class Flight<T>(val owner: Job?) {
+        val outcome = CompletableDeferred<Result<T>>()
+    }
+
     private val mapLock = Mutex()
-    private val flights = HashMap<K, CompletableDeferred<T>>()
+    private val flights = HashMap<K, Flight<T>>()
 
     /**
      * Runs [block] for [key], or joins an execution already in flight for an equal key.
      *
      * The caller that starts the execution runs [block] in its own context;
      * joining callers only wait. Every participant receives the same value, or
-     * the same failure thrown as-is.
+     * the same failure thrown as-is. A `CancellationException` that [block]
+     * throws while its caller is still active, such as the timeout of a
+     * `withTimeout` inside [block], is such a shared failure.
      *
      * Cancellation: cancelling the executing caller cancels the shared
      * execution; joining callers do not inherit that cancellation, they retry
      * with a fresh execution instead. Cancelling a joining caller only stops
      * its wait and rethrows. Flight cleanup runs in a [NonCancellable]
      * context, so a cancelled execution never leaks its key.
+     *
+     * @throws IllegalStateException if [block], or a coroutine started inside
+     *   it, calls [run] again with an equal key. That call would wait for its
+     *   own execution forever.
      */
     public suspend fun run(key: K, block: suspend () -> T): T {
+        val caller = currentCoroutineContext()[Job]
         while (true) {
             var owner = false
             val flight = mapLock.withLock {
                 flights.getOrPut(key) {
                     owner = true
-                    CompletableDeferred()
+                    Flight(caller)
                 }
             }
-            if (owner) {
-                try {
-                    val value = block()
-                    flight.complete(value)
-                    return value
-                } catch (cause: Throwable) {
-                    flight.completeExceptionally(cause)
-                    throw cause
-                } finally {
-                    withContext(NonCancellable) {
-                        mapLock.withLock { flights.remove(key) }
-                    }
-                }
+            if (owner) return execute(key, flight, block)
+            val flightOwner = flight.owner
+            check(caller == null || flightOwner == null || !caller.isSameOrDescendantOf(flightOwner)) {
+                "SingleFlight.run was called for key $key from inside its own block, so it would wait for itself forever."
             }
-            try {
-                return flight.await()
+            val outcome = try {
+                flight.outcome.await()
             } catch (cause: CancellationException) {
                 currentCoroutineContext().ensureActive()
-                // The shared execution was cancelled before completing; race
-                // for a fresh flight on the next loop iteration.
+                // The executing caller was cancelled; race for a fresh execution.
+                continue
             }
+            return outcome.getOrThrow()
+        }
+    }
+
+    private suspend fun execute(key: K, flight: Flight<T>, block: suspend () -> T): T {
+        try {
+            val outcome = try {
+                Result.success(block())
+            } catch (cause: Throwable) {
+                Result.failure(cause)
+            }
+            // Release the key before resolving the flight, so a joiner that retries starts a fresh one.
+            withContext(NonCancellable) {
+                mapLock.withLock { flights.remove(key) }
+            }
+            // A failure of a cancelled executor is its cancellation, which joiners must not share.
+            if (outcome.isFailure) currentCoroutineContext().ensureActive()
+            flight.outcome.complete(outcome)
+            return outcome.getOrThrow()
+        } finally {
+            // No effect after complete; otherwise joiners retry instead of waiting forever.
+            flight.outcome.cancel()
         }
     }
 
@@ -119,6 +145,9 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
     @Volatile
     private var stored: Any? = UninitializedValue
 
+    @Volatile
+    private var initializingJob: Job? = null
+
     /**
      * Returns `true` once a value has been successfully initialized.
      *
@@ -151,12 +180,21 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
      * Cancellation: cancelling the initializing caller stops the initializer
      * and leaves the value uninitialized; the next caller runs the initializer
      * again. Cancelling a waiting caller only stops its wait and rethrows.
+     *
+     * @throws IllegalStateException if the initializer, or a coroutine started
+     *   inside it, calls [get] on this instance. That call would wait for its
+     *   own initialization forever.
      */
     public suspend fun get(): T {
         val fast = stored
         if (fast !== UninitializedValue) {
             @Suppress("UNCHECKED_CAST")
             return fast as T
+        }
+        val caller = currentCoroutineContext()[Job]
+        val initializing = initializingJob
+        check(caller == null || initializing == null || !caller.isSameOrDescendantOf(initializing)) {
+            "SuspendLazy.get() was called from inside its own initializer, so it would wait for itself forever."
         }
         lock.withLock {
             val seen = stored
@@ -165,10 +203,15 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
                 return seen as T
             }
             val initialize = checkNotNull(initializer) { "initializer is absent before initialization" }
-            val value = initialize()
-            stored = value
-            initializer = null
-            return value
+            initializingJob = caller
+            try {
+                val value = initialize()
+                stored = value
+                initializer = null
+                return value
+            } finally {
+                initializingJob = null
+            }
         }
     }
 }
@@ -183,3 +226,14 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
  * [SuspendLazy.get].
  */
 public fun <T> suspendLazy(initializer: suspend () -> T): SuspendLazy<T> = SuspendLazy(initializer)
+
+// Job.parent is experimental; it is only read here, to detect a call that would wait for itself.
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun Job.isSameOrDescendantOf(ancestor: Job): Boolean {
+    var job: Job? = this
+    while (job != null) {
+        if (job === ancestor) return true
+        job = job.parent
+    }
+    return false
+}

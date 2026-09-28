@@ -22,12 +22,7 @@ final enum class io.github.yuroyami.kitecore/PlatformFamily : kotlin/Enum<io.git
     final fun values(): kotlin/Array<io.github.yuroyami.kitecore/PlatformFamily> // io.github.yuroyami.kitecore/PlatformFamily.values|values#static(){}[0]
 }
 
-abstract interface <#A: out kotlin/Any?> io.github.yuroyami.kitecore/ProgressFuture : kotlinx.coroutines/Deferred<#A> { // io.github.yuroyami.kitecore/ProgressFuture|null[0]
-    abstract val progress // io.github.yuroyami.kitecore/ProgressFuture.progress|{}progress[0]
-        abstract fun <get-progress>(): kotlinx.coroutines.flow/StateFlow<io.github.yuroyami.kitecore/Progress> // io.github.yuroyami.kitecore/ProgressFuture.progress.<get-progress>|<get-progress>(){}[0]
-}
-
-abstract interface io.github.yuroyami.kitecore/ProgressScope : kotlinx.coroutines/CoroutineScope { // io.github.yuroyami.kitecore/ProgressScope|null[0]
+sealed interface io.github.yuroyami.kitecore/ProgressScope : kotlinx.coroutines/CoroutineScope { // io.github.yuroyami.kitecore/ProgressScope|null[0]
     abstract fun report(kotlin/Float?, kotlin/String? = ...) // io.github.yuroyami.kitecore/ProgressScope.report|report(kotlin.Float?;kotlin.String?){}[0]
     abstract fun report(kotlin/Long, kotlin/Long, kotlin/String? = ...) // io.github.yuroyami.kitecore/ProgressScope.report|report(kotlin.Long;kotlin.Long;kotlin.String?){}[0]
     abstract fun slice(kotlin/Float, kotlin/String? = ...): io.github.yuroyami.kitecore/ProgressScope // io.github.yuroyami.kitecore/ProgressScope.slice|slice(kotlin.Float;kotlin.String?){}[0]
@@ -59,6 +54,17 @@ final class <#A: kotlin/Any?> io.github.yuroyami.kitecore.coroutines/SuspendLazy
 
     final fun valueOrNull(): #A? // io.github.yuroyami.kitecore.coroutines/SuspendLazy.valueOrNull|valueOrNull(){}[0]
     final suspend fun get(): #A // io.github.yuroyami.kitecore.coroutines/SuspendLazy.get|get(){}[0]
+}
+
+final class <#A: out kotlin/Any?> io.github.yuroyami.kitecore/ProgressFuture { // io.github.yuroyami.kitecore/ProgressFuture|null[0]
+    final val deferred // io.github.yuroyami.kitecore/ProgressFuture.deferred|{}deferred[0]
+        final fun <get-deferred>(): kotlinx.coroutines/Deferred<#A> // io.github.yuroyami.kitecore/ProgressFuture.deferred.<get-deferred>|<get-deferred>(){}[0]
+    final val progress // io.github.yuroyami.kitecore/ProgressFuture.progress|{}progress[0]
+        final fun <get-progress>(): kotlinx.coroutines.flow/StateFlow<io.github.yuroyami.kitecore/Progress> // io.github.yuroyami.kitecore/ProgressFuture.progress.<get-progress>|<get-progress>(){}[0]
+
+    final fun cancel(kotlin.coroutines.cancellation/CancellationException? = ...) // io.github.yuroyami.kitecore/ProgressFuture.cancel|cancel(kotlin.coroutines.cancellation.CancellationException?){}[0]
+    final fun toString(): kotlin/String // io.github.yuroyami.kitecore/ProgressFuture.toString|toString(){}[0]
+    final suspend fun await(): #A // io.github.yuroyami.kitecore/ProgressFuture.await|await(){}[0]
 }
 
 final class io.github.yuroyami.kitecore.text/StringFormatException : kotlin/IllegalArgumentException { // io.github.yuroyami.kitecore.text/StringFormatException|null[0]

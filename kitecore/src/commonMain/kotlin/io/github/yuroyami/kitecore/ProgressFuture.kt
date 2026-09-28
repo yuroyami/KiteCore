@@ -4,15 +4,15 @@ package io.github.yuroyami.kitecore
 
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.InternalForInheritanceCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
@@ -30,6 +30,7 @@ public class Progress(fraction: Float?, public val phase: String? = null) {
 
     /** Completed fraction in `0..1`, or `null` while the total is unknown. */
     public val fraction: Float? = fraction?.takeUnless { it.isNaN() }?.coerceIn(0f, 1f)
+        ?.let { if (it == 0f) 0f else it } // -0f becomes 0f, so equal values share a hash code
 
     override fun equals(other: Any?): Boolean =
         other is Progress && other.fraction == fraction && other.phase == phase
@@ -43,11 +44,12 @@ public class Progress(fraction: Float?, public val phase: String? = null) {
 }
 
 /**
- * A [Deferred] that also exposes live [progress].
+ * The handle of an operation that reports progress: its result as a [deferred], plus live [progress].
  *
- * Every [Deferred] member works here: `await()`, `cancel()`, `awaitAll(...)`, and
- * `onAwait`. In addition, [progress] is a conflated [StateFlow] of the latest
- * [Progress], observable from Compose via `progress.collectAsState()`.
+ * [await] and [cancel] forward to [deferred]. Use [deferred] for every other
+ * [Deferred] operation, such as `awaitAll`, `select`, or `invokeOnCompletion`.
+ * [progress] is a conflated [StateFlow] of the latest [Progress], observable
+ * from Compose via `progress.collectAsState()`.
  *
  * Apply progress policy such as throttling or monotonic bars with a `Flow`
  * operator, for example `progress.sample(100.milliseconds)`.
@@ -57,12 +59,24 @@ public class Progress(fraction: Float?, public val phase: String? = null) {
  * user-visible operation such as opening a document or downloading a file, not
  * per inner step.
  */
-// Deferred is @SubclassOptInRequired since coroutines 1.9; the @OptIn below
-// opts into inheriting it.
-@OptIn(InternalForInheritanceCoroutinesApi::class)
-public interface ProgressFuture<out T> : Deferred<T> {
-    /** Latest progress. Starts indeterminate; set to `fraction = 1f` on success. */
-    public val progress: StateFlow<Progress>
+public class ProgressFuture<out T> internal constructor(
+    /** The running operation. */
+    public val deferred: Deferred<T>,
+    /**
+     * Latest progress. For [asyncWithProgress] it starts indeterminate, becomes
+     * `fraction = 1f` on success, and freezes on failure or cancellation.
+     */
+    public val progress: StateFlow<Progress>,
+) {
+    /** Waits for the result, like [Deferred.await]. */
+    public suspend fun await(): T = deferred.await()
+
+    /** Cancels the operation, like [Deferred.cancel]. Progress freezes at its last value. */
+    public fun cancel(cause: CancellationException? = null) {
+        deferred.cancel(cause)
+    }
+
+    override fun toString(): String = "ProgressFuture(${progress.value}, $deferred)"
 }
 
 /**
@@ -71,10 +85,15 @@ public interface ProgressFuture<out T> : Deferred<T> {
  *
  * [report] may be called from any thread. [slice] must be called sequentially
  * from the job's own flow; slices are windows allocated left to right, not a
- * concurrent tree. For parallel work, route completions through
- * `report(done, total)`, whose counter is monotonic.
+ * concurrent tree. Parallel workers can each call [report], but their reports
+ * may arrive out of order. For a bar that never moves back, keep one shared
+ * counter of finished units, report it with `report(done, total)`, and make the
+ * bar monotonic at the consumer with a `Flow` operator.
+ *
+ * Once the operation finishes, fails, or is cancelled, reports have no effect.
+ * A late report from another thread therefore cannot move a finished bar.
  */
-public interface ProgressScope : CoroutineScope {
+public sealed interface ProgressScope : CoroutineScope {
 
     /**
      * Reports progress within this scope's window.
@@ -111,8 +130,8 @@ public interface ProgressScope : CoroutineScope {
  *
  * The [block] runs with a [ProgressScope] receiver, so it can report progress
  * and slice the bar. On success, progress is completed to `fraction = 1f`, keeping
- * the last phase. On failure or cancellation, progress freezes at the last
- * reported value. [context] and [start] behave as in [async].
+ * the last phase. On failure or cancellation, progress freezes at the last value
+ * reported while the operation was active. [context] and [start] behave as in [async].
  *
  * ```kotlin
  * val opening: ProgressFuture<PdfDocument> = scope.asyncWithProgress {
@@ -139,7 +158,7 @@ public fun <T> CoroutineScope.asyncWithProgress(
     deferred.invokeOnCompletion { cause ->
         if (cause == null) state.update { Progress(1f, it.phase) }
     }
-    return ProgressFutureImpl(deferred, state)
+    return ProgressFuture(deferred, state.asStateFlow())
 }
 
 /**
@@ -147,23 +166,11 @@ public fun <T> CoroutineScope.asyncWithProgress(
  * [ProgressFuture].
  *
  * Use it to wrap an API that already exposes both halves, such as a Ktor download
- * whose `onDownload` callback feeds a [MutableStateFlow].
+ * whose `onDownload` callback feeds a [MutableStateFlow]. The adapter does not
+ * change [progress] when the [Deferred] completes; its owner does.
  */
 public fun <T> Deferred<T>.withProgress(progress: StateFlow<Progress>): ProgressFuture<T> =
-    ProgressFutureImpl(this, progress)
-
-// Delegating to Deferred surfaces members that carry opt-in markers: attachChild
-// and friends are @InternalCoroutinesApi, and getCompleted is
-// @ExperimentalCoroutinesApi. The @OptIn stays on this private class.
-@OptIn(
-    InternalCoroutinesApi::class,
-    ExperimentalCoroutinesApi::class,
-    InternalForInheritanceCoroutinesApi::class,
-)
-private class ProgressFutureImpl<T>(
-    deferred: Deferred<T>,
-    override val progress: StateFlow<Progress>,
-) : ProgressFuture<T>, Deferred<T> by deferred
+    ProgressFuture(this, progress)
 
 /**
  * A window `[base, base + width]` of the overall bar. The root scope is the full
@@ -179,6 +186,10 @@ private class SliceScope(
     initialPhase: String? = null,
 ) : ProgressScope, CoroutineScope by scope {
 
+    // Reports stop once the job is no longer active: progress freezes on failure or
+    // cancellation, and a late report cannot overwrite the final value.
+    private val job: Job? = scope.coroutineContext[Job]
+
     // Sticky label: a report with a non-null phase updates it, reports without a
     // phase keep it. The contract confines phase changes to the job's own flow, so
     // concurrent reports race only on which label sticks and never crash.
@@ -189,7 +200,10 @@ private class SliceScope(
     override fun report(fraction: Float?, phase: String?) {
         if (phase != null) currentPhase = phase
         // Constructor clamps to 0..1 and maps NaN to indeterminate.
-        state.value = Progress(fraction?.let { base + it.coerceIn(0f, 1f) * width }, currentPhase)
+        val next = Progress(fraction?.let { base + it.coerceIn(0f, 1f) * width }, currentPhase)
+        // The activity check runs inside the update loop, so a report that races the
+        // completion handler either lands before it or is dropped.
+        state.update { current -> if (job?.isActive == false) current else next }
     }
 
     override fun report(done: Long, total: Long, phase: String?) {

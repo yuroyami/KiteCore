@@ -12,11 +12,14 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 
 class ProgressFutureTest {
 
@@ -154,5 +157,51 @@ class ProgressFutureTest {
         assertEquals("ok", f.await())
         // The adapter does NOT auto-complete: the flow is externally owned.
         assertEquals(0.7f, f.progress.value.fraction)
+    }
+
+    @Test
+    fun late_reports_after_success_are_ignored() = runTest {
+        lateinit var escaped: ProgressScope
+        val f = asyncWithProgress {
+            escaped = this
+            report(0.5f, "work")
+            "done"
+        }
+        assertEquals("done", f.await())
+        escaped.report(0.3f, "late")
+        escaped.slice(0.5f, "late slice").report(0.1f)
+        assertEquals(1f, f.progress.value.fraction)
+        assertEquals("work", f.progress.value.phase)
+    }
+
+    @Test
+    fun reports_after_cancellation_are_ignored() = runTest {
+        val f = asyncWithProgress {
+            report(0.2f, "before")
+            try {
+                awaitCancellation()
+            } finally {
+                withContext(NonCancellable) { report(0.9f, "after") }
+            }
+        }
+        runCurrent()
+        f.cancel()
+        assertFailsWith<CancellationException> { f.await() }
+        assertEquals(0.2f, f.progress.value.fraction)
+        assertEquals("before", f.progress.value.phase)
+    }
+
+    @Test
+    fun negative_zero_is_the_same_progress_as_zero() {
+        assertEquals(Progress(0f), Progress(-0f))
+        assertEquals(Progress(0f).hashCode(), Progress(-0f).hashCode())
+        assertEquals("Progress(0%)", Progress(-0f).toString())
+    }
+
+    @Test
+    fun deferred_is_exposed_for_awaitAll() = runTest {
+        val a = asyncWithProgress { 1 }
+        val b = asyncWithProgress { 2 }
+        assertEquals(listOf(1, 2), awaitAll(a.deferred, b.deferred))
     }
 }

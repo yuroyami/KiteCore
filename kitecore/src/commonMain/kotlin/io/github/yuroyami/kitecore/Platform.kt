@@ -28,7 +28,12 @@ public class Platform internal constructor(
     public val deviceModel: String,
     public val family: PlatformFamily,
 ) {
-    override fun toString(): String = "$name $osVersion ($deviceModel)"
+    /** "name osVersion (deviceModel)", leaving out the parts that are empty. */
+    override fun toString(): String = buildString {
+        append(name)
+        if (osVersion.isNotEmpty()) append(' ').append(osVersion)
+        if (deviceModel.isNotEmpty()) append(" (").append(deviceModel).append(')')
+    }
 
     public companion object {
         /** The host platform for the current target. Cached; safe to read from any thread. */

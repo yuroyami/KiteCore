@@ -5,9 +5,17 @@ package io.github.yuroyami.kitecore
 internal actual val currentPlatform: Platform = Platform(
     name = "JVM",
     osVersion = listOfNotNull(
-        System.getProperty("os.name"),
-        System.getProperty("os.version"),
+        systemProperty("os.name"),
+        systemProperty("os.version"),
     ).joinToString(" "),
-    deviceModel = System.getProperty("os.arch") ?: "",
+    deviceModel = systemProperty("os.arch") ?: "",
     family = PlatformFamily.JVM,
 )
+
+// A security manager can deny property reads; identity then falls back to empty values.
+private fun systemProperty(key: String): String? =
+    try {
+        System.getProperty(key)
+    } catch (e: SecurityException) {
+        null
+    }

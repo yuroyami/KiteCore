@@ -1,6 +1,6 @@
 # Progress-reporting futures
 
-`ProgressFuture<T>` is a `Deferred<T>` that also exposes live progress as a `StateFlow`. Start one with `asyncWithProgress`, observe `progress`, and `await()` the result as usual. The intended granularity is one future per user-visible operation, such as opening a document or downloading a file, not one per inner step.
+`ProgressFuture<T>` pairs a running operation, exposed as a `Deferred<T>`, with its live progress as a `StateFlow`. Start one with `asyncWithProgress`, observe `progress`, and `await()` the result. The intended granularity is one future per user-visible operation, such as opening a document or downloading a file, not one per inner step.
 
 ## Start a job that reports progress
 
@@ -72,6 +72,8 @@ val downloads = scope.asyncWithProgress {
 
 `report(done, total)` reports `done / total`, or indeterminate when `total <= 0` (useful while the item count is still unknown).
 
+Reports from parallel tasks can arrive out of order, so the bar can move back a little. If that matters, keep the bar monotonic at the consumer with a `Flow` operator.
+
 ## Collect the progress
 
 `progress` is a conflated `StateFlow<Progress>`: it always holds the latest value, and a slow collector skips intermediate ones. Collect it anywhere a flow works:
@@ -101,8 +103,8 @@ Apply progress policy with ordinary `Flow` operators, for example `progress.samp
 ## Success, failure, and cancellation
 
 - On success, progress completes to `fraction = 1f` automatically, keeping the last phase. A final `report(1f)` is not needed.
-- On failure or cancellation, progress freezes at the last reported value. Read the outcome from the `Deferred` side (`await()` rethrows, `isCancelled`), not from the bar.
-- Every `Deferred` member works: `await()`, `cancel()`, `awaitAll(...)`, and `onAwait` in `select`.
+- On failure or cancellation, progress freezes at the last value reported while the operation was active. Later reports have no effect, including late reports from other threads. Read the outcome from the `Deferred` side (`await()` rethrows, `deferred.isCancelled`), not from the bar.
+- `await()` and `cancel()` work directly on the future. For every other `Deferred` operation, use its `deferred`: `awaitAll(a.deferred, b.deferred)`, `deferred.onAwait` in `select`, or `deferred.invokeOnCompletion`.
 
 ## Adapt an existing Deferred
 
