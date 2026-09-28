@@ -11,8 +11,9 @@ every KMP target: Android, JVM, iOS, macOS, JS, and Wasm.
 | [`asyncWithProgress { }`](progress-future.md) | `async`, plus a `StateFlow` of live progress |
 | [`WeakRef<T>`](weakref.md) | weak reference usable from common code |
 | [`Platform.current`](platform.md) | OS name, version, device model, family |
-| [`WebWorker`](webworker.md) | run JavaScript off the browser main thread |
-| [Extension packages](text.md) | 500+ tested utilities: text, collections, flow, coroutines, math, encoding, structures, time, random, util |
+| [`String.format`](text.md) | JVM-style string formatting in common code |
+| [Coroutine helpers](coroutines.md) | `retryWithBackoff`, `runCatchingCancellable`, `parallelMap`, `SingleFlight`, `suspendLazy` |
+| [Flow helpers](flow.md) | `throttleFirst`, `mapAsync`, `mapState`, `combineStates` |
 
 ## Install
 
@@ -45,10 +46,8 @@ launch { job.progress.collect { println(it) } }
 // Who am I?
 println(Platform.current)   // "iOS 17.5 (iPhone15,3)"
 
-// The small stuff you rewrite in every project:
-val slug = "Hello, World!".toSlug()          // "hello-world"
-val size = 1_572_864L.formatBytes()          // "1.5 MiB"
-val cache = LruCache<String, Bitmap>(maxSize = 64)
+// String.format in common code:
+val load = "%.1f%%".format(82.75)   // "82.8%"
 ```
 
 Start with [Getting Started](getting-started.md), or jump straight to the

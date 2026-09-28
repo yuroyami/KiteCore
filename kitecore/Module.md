@@ -2,8 +2,7 @@
 
 Runtime utilities for Kotlin Multiplatform.
 
-Five primitives that `commonMain` does not provide (`ioDispatcher`,
-`asyncWithProgress`, `WeakRef`, `Platform` and `WebWorker`), plus about 450
-extension functions for text, collections, flows, coroutines, math, encoding,
-data structures, time and randomness. Its only dependency is
+Four primitives that `commonMain` does not provide (`ioDispatcher`,
+`asyncWithProgress`, `WeakRef` and `Platform`), a portable `String.format`, and
+a short list of coroutine and Flow helpers. Its only dependency is
 `kotlinx-coroutines-core`.

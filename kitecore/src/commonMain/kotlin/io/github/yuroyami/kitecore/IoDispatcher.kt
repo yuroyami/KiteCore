@@ -9,13 +9,11 @@ import kotlinx.coroutines.Dispatchers
  * The [CoroutineDispatcher] for blocking and IO-bound work on the current target.
  *
  * Platform behavior:
- * - JVM, Android, Apple (iOS, macOS): the real [Dispatchers.IO], an elastic thread pool.
+ * - JVM, Android, Apple (iOS, macOS): the real `Dispatchers.IO`, an elastic thread pool.
  * - Web (js, wasmJs): no OS thread pool exists. Resolves to the dispatcher set by
  *   [installIoDispatcher] if one was installed, otherwise [Dispatchers.Default] (the
  *   single-threaded JS event loop) with a one-time console warning. To move heavy work
- *   off the main thread, use `WebWorker` or `runInWorker` (available on js and wasmJs),
- *   or generate a worker with kmp-ssot's `web { generateIoWorker = true }`, then pass the
- *   result to [installIoDispatcher].
+ *   off the main thread, pass a dispatcher backed by a Web Worker to [installIoDispatcher].
  *
  * @see installIoDispatcher
  *

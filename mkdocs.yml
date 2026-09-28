@@ -1,6 +1,6 @@
 site_name: KiteCore
 site_url: https://yuroyami.github.io/KiteCore/
-site_description: "Small runtime utilities for Kotlin Multiplatform: an IO dispatcher on every target, progress-reporting futures, weak references in common code, platform identity, Web Worker offload, and about 450 tested extension functions."
+site_description: "Small runtime utilities for Kotlin Multiplatform: an IO dispatcher on every target, progress-reporting futures, weak references in common code, platform identity, a portable String.format, and a few coroutine and Flow helpers."
 site_author: yuroyami
 copyright: Apache-2.0
 
@@ -76,16 +76,8 @@ nav:
       - Progress futures: progress-future.md
       - Weak references: weakref.md
       - Platform identity: platform.md
-      - Web Workers: webworker.md
-  - Extensions:
-      - Text: text.md
-      - Collections: collections.md
-      - Flow: flow.md
+  - Helpers:
+      - String formatting: text.md
       - Coroutines: coroutines.md
-      - Math: math.md
-      - Encoding: encoding.md
-      - Structures: structures.md
-      - Time: time.md
-      - Random: random.md
-      - Util: util.md
+      - Flow: flow.md
   - API reference: https://yuroyami.github.io/KiteCore/api/

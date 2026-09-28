@@ -1,8 +1,8 @@
 # KiteCore
 
 Small runtime utilities for Kotlin Multiplatform: the handful of primitives that
-are missing from `commonMain`, plus the extension functions most projects end up
-writing themselves.
+are missing from `commonMain`, plus a few coroutine and Flow helpers that are
+easy to get wrong.
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.yuroyami/kitecore)](https://central.sonatype.com/artifact/io.github.yuroyami/kitecore)
 [![CI](https://img.shields.io/github/actions/workflow/status/yuroyami/KiteCore/ci.yml?branch=main&label=CI)](https://github.com/yuroyami/KiteCore/actions/workflows/ci.yml)
@@ -16,20 +16,18 @@ runnable examples, plus the generated reference.
 
 Kotlin Multiplatform leaves a few small gaps in `commonMain`. There is no name
 for `Dispatchers.IO` that resolves on every target, no weak reference, no way to
-identify the host platform, and no future that reports progress while it runs.
-Each project fills these in itself, slightly differently.
+identify the host platform, no future that reports progress while it runs, and
+no `String.format`. Each project fills these in itself, slightly differently.
 
-KiteCore fills them once: five platform primitives, plus about 450 utility
-functions for text, collections, flows, coroutines, math, encoding, time and
-randomness. It is one artifact, and its only dependency is
-`kotlinx-coroutines-core`.
+KiteCore fills them once: four platform primitives, a portable `String.format`,
+and a short list of coroutine and Flow helpers. It is one artifact, and its only
+dependency is `kotlinx-coroutines-core`.
 
 ```kotlin
 import io.github.yuroyami.kitecore.ioDispatcher
 import io.github.yuroyami.kitecore.Platform
 import io.github.yuroyami.kitecore.asyncWithProgress
-import io.github.yuroyami.kitecore.text.toSlug
-import io.github.yuroyami.kitecore.math.formatBytes
+import io.github.yuroyami.kitecore.text.format
 
 // Blocking work, off the main thread, on every target.
 val bytes = withContext(ioDispatcher) { readFileBlocking(path) }
@@ -46,8 +44,7 @@ launch { job.progress.collect { showBar(it.fraction) } }
 job.await()
 
 println(Platform.current)              // "iOS 17.5 (iPhone15,3)"
-println("Hello, World!".toSlug())      // "hello-world"
-println(1_572_864L.formatBytes())      // "1.5 MiB"
+println("%.1f%%".format(82.75))        // "82.8%"
 ```
 
 ## Install
@@ -66,7 +63,7 @@ Coroutines come with it transitively, so you do not need to declare them
 yourself. The same artifact works in a plain Android or JVM project. You do not have to
 be using Kotlin Multiplatform.
 
-## The five primitives
+## The four primitives
 
 ### `ioDispatcher`: one name for blocking work
 
@@ -84,7 +81,7 @@ pool, so there is nothing for `ioDispatcher` to resolve to. Without setup it
 falls back to `Dispatchers.Default`. On JS that is the single main thread, so
 blocking work there blocks the event loop. You get one console warning, not a
 fix. Call `installIoDispatcher(...)` once at startup with a real
-off-thread dispatcher, or use `runInWorker` below.
+off-thread dispatcher. KiteCore does not ship one.
 
 ### `asyncWithProgress { }`: a future that reports progress
 
@@ -134,45 +131,40 @@ when (Platform.current.family) {
 Fields are `name`, `osVersion`, `deviceModel` and `family`. Values are
 best-effort and can be empty when the host does not report them.
 
-### `WebWorker`: run JavaScript off the main thread
+## Portable `String.format`
 
-Available on `js` and `wasmJs` only.
+The standard library has `String.format` only on the JVM. KiteCore's version
+lives in common code, follows Java's `Formatter` syntax, and is tested against
+the JVM formatter itself.
 
 ```kotlin
-val sum = runInWorker(
-    jobJs = "(n) => { let s = 0; for (let i = 0; i < +n; i++) s += i; return '' + s }",
-    payload = "100000000",
-)
+import io.github.yuroyami.kitecore.text.format
+
+String.format("%2\$s: %1\$,08d", 12_345, "items")  // "items: 0012,345"
+"%-10s %04d".format("retry", 7)                    // "retry      0007"
 ```
 
-`runInWorker` builds a worker, runs one payload and closes it. For repeated
-calls keep a `WebWorker.of(jobJs)` and `call(payload)` it. Replies carry
-correlation ids, so a cancelled call's reply is never delivered to a later one.
+Output does not depend on the device locale. Date and time conversions (`%t`)
+are not supported.
 
-## The utility packages
+## Coroutine and Flow helpers
 
-About 450 functions under `io.github.yuroyami.kitecore.*`. All common code.
-Import what you use.
-
-| Package | Some of what's in it |
-| --- | --- |
-| `text` | `format`, `truncate`, `toSnakeCase`, `toSlug`, `mask`, `wrap`, `utf8Size` |
-| `collections` | `second`, `swapped`, `chunkedBy`, `frequencies`, `transposed`, `median`, `percentile` |
-| `flow` | `throttleFirst`, `mapAsync`, `retryWithBackoff`, `windowed`, `combine6`–`combine9`, `mapState` |
-| `coroutines` | `retry`, `runCatchingCancellable`, `raceOf`, `parallelMap`, `KeyedMutex`, `suspendLazy` |
-| `math` | `roundTo`, `formatDecimals`, `formatBytes`, `lerp`, `gcd`, `hasFlag`, `5.MB` |
-| `encoding` | `toHex`, `toBase64`, `crc32`, `fnv1a64`, endian-explicit binary reads and writes |
-| `structures` | `LruCache`, `TtlCache`, `RingBuffer`, `Counter`, `ObjectPool`, `TypedMap`, `memoize` |
-| `time` | `Stopwatch`, `Deadline`, `RateLimiter`, `formatHms`, `withMinimumDuration`, `pollUntil` |
-| `random` | `nextString`, `nextGaussian`, `sample`, `weightedRandom` |
-| `util` | `applyIf`, `tryOrNull`, `Result.flatMap`, `useAll`, `weakLazy` |
+| Package | API | What it does |
+| --- | --- | --- |
+| `coroutines` | `retryWithBackoff` | Retries with growing pauses. Never retries cancellation. |
+| `coroutines` | `runCatchingCancellable` | `runCatching` that lets cancellation through. |
+| `coroutines` | `parallelMap`, `parallelForEach` | Parallel work with a concurrency limit. |
+| `coroutines` | `SingleFlight` | Concurrent calls with the same key share one execution. |
+| `coroutines` | `suspendLazy` | A lazy value whose initializer can suspend. Failures are not cached. |
+| `flow` | `throttleFirst` | Emits the first value, then drops values for a time window. |
+| `flow` | `mapAsync` | Maps with a concurrency limit and keeps upstream order. |
+| `flow` | `mapState`, `combineStates` | Derived `StateFlow` without a coroutine scope. |
 
 ```kotlin
-val id = Random.nextAlphanumeric(12)
-val eta = (bytesLeft.toDouble() / speed).seconds.formatHms()   // "4m 12s"
-val groups = fetchResults().chunkedBy { it.category }
+val user = retryWithBackoff(times = 5, initialDelay = 200.milliseconds) { api.fetchUser(id) }
+val profiles = userIds.parallelMap(concurrency = 8) { api.fetchProfile(it) }
 val config = suspendLazy { loadConfigFromDisk() }
-retryWithBackoff(times = 5, initialDelay = 200.milliseconds) { api.sync() }
+val total: StateFlow<Int> = items.mapState { list -> list.sumOf { it.price } }
 ```
 
 ## Targets
@@ -198,8 +190,8 @@ Node), `wasmJs` (browser and Node).
 ## Testing
 
 The public API is exercised on eight target runs: JVM, Android host, iOS
-simulator, macOS, JS (browser and Node) and Wasm (browser and Node). 694 tests.
-Every public top-level function is referenced by a test except `throttleLatest`.
+simulator, macOS, JS (browser and Node) and Wasm (browser and Node). 77 tests.
+Every public function and class is referenced by a test.
 
 ## Contributing
 

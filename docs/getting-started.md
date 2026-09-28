@@ -62,24 +62,23 @@ val file = export.await()
 
 See [Progress futures](progress-future.md) for cancellation and adapter details.
 
-## Step 4: Use the extension packages
+## Step 4: Use the helpers
 
-Ten packages under `io.github.yuroyami.kitecore.*` hold over 500 small,
-tested utilities. They are ordinary top-level functions and classes: import
-what you use.
+Three small packages hold the rest: `text` (a portable `String.format`),
+`coroutines`, and `flow`. They are ordinary top-level functions and classes:
+import what you use.
 
 ```kotlin
-import io.github.yuroyami.kitecore.text.truncate
-import io.github.yuroyami.kitecore.math.formatBytes
-import io.github.yuroyami.kitecore.structures.LruCache
 import io.github.yuroyami.kitecore.coroutines.retryWithBackoff
+import io.github.yuroyami.kitecore.coroutines.runCatchingCancellable
+import io.github.yuroyami.kitecore.text.format
+import kotlin.time.Duration.Companion.milliseconds
 
-val title = longName.truncate(40)
-val label = downloaded.formatBytes(decimals = 1)   // "1.5 MiB"
-val thumbnails = LruCache<String, ByteArray>(maxSize = 128)
 val data = retryWithBackoff(times = 5, initialDelay = 200.milliseconds) {
     api.fetch()
 }
+val result = runCatchingCancellable { api.fetch() }   // cancellation still propagates
+val label = "%.1f MiB".format(bytes / 1_048_576.0)    // "1.5 MiB" for 1_572_864 bytes
 ```
 
 Each package has its own walkthrough page in the navigation.
@@ -90,4 +89,4 @@ Each package has its own walkthrough page in the navigation.
 - [Progress futures](progress-future.md): slices, phases, cancellation.
 - [Weak references](weakref.md): platform semantics and the support flag.
 - [Platform identity](platform.md): branching on the host platform.
-- [Web Workers](webworker.md): heavy JavaScript off the main thread.
+- [String formatting](text.md), [Coroutines](coroutines.md), and [Flow](flow.md): the helper packages.

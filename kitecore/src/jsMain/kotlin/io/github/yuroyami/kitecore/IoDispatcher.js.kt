@@ -20,7 +20,8 @@ public actual val ioDispatcher: CoroutineDispatcher
             jsConsoleWarn(
                 "[KiteCore] ioDispatcher: no Web Worker dispatcher installed; falling back to " +
                     "Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will not " +
-                    "leave the main thread. Use WebWorker / runInWorker, or kmpSsot { web { generateIoWorker = true } }."
+                    "leave the main thread. Supply your own Worker-backed CoroutineDispatcher via " +
+                    "installIoDispatcher(...)."
             )
         }
         return Dispatchers.Default

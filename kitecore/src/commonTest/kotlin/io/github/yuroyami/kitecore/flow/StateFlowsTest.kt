@@ -4,60 +4,10 @@ package io.github.yuroyami.kitecore.flow
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 
 class StateFlowsTest {
-
-    @Test
-    fun toggleFlipsAndReturnsNewValue() = runTest {
-        val state = MutableStateFlow(false)
-        assertTrue(state.toggle())
-        assertTrue(state.value)
-        assertFalse(state.toggle())
-        assertFalse(state.value)
-    }
-
-    @Test
-    fun incrementAddsToIntState() = runTest {
-        val state = MutableStateFlow(10)
-        assertEquals(11, state.increment())
-        assertEquals(14, state.increment(3))
-        assertEquals(14, state.value)
-    }
-
-    @Test
-    fun decrementSubtractsFromIntState() = runTest {
-        val state = MutableStateFlow(10)
-        assertEquals(9, state.decrement())
-        assertEquals(4, state.decrement(5))
-        assertEquals(4, state.value)
-    }
-
-    @Test
-    fun incrementAddsToLongState() = runTest {
-        val state = MutableStateFlow(1L)
-        assertEquals(2L, state.increment())
-        assertEquals(12L, state.increment(10L))
-        assertEquals(12L, state.value)
-    }
-
-    @Test
-    fun decrementSubtractsFromLongState() = runTest {
-        val state = MutableStateFlow(5L)
-        assertEquals(4L, state.decrement())
-        assertEquals(0L, state.decrement(4L))
-        assertEquals(0L, state.value)
-    }
-
-    @Test
-    fun getAndSetReturnsPreviousValue() = runTest {
-        val state = MutableStateFlow("old")
-        assertEquals("old", state.getAndSet("new"))
-        assertEquals("new", state.value)
-    }
 
     @Test
     fun mapStateReflectsSourceValueAndEmissions() = runTest {
@@ -80,12 +30,5 @@ class StateFlowsTest {
         assertEquals(1111, combineStates(a, b, c, d) { x, y, z, w -> x + y + z + w }.value)
         a.value = 2
         assertEquals(12, combineStates(a, b) { x, y -> x + y }.value)
-    }
-
-    @Test
-    fun stateFlowOfHoldsAConstant() = runTest {
-        val constant = stateFlowOf("fixed")
-        assertEquals("fixed", constant.value)
-        assertEquals(listOf("fixed"), constant.replayCache)
     }
 }

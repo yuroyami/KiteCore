@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+KiteCore now keeps only the APIs that fill a real gap in `commonMain`. This is
+a breaking change. Every kept API has the same signature as in 0.1.0.
+
+### Removed
+
+- `WebWorker`, `WebWorkerException`, and `runInWorker` on js and wasmJs.
+- The `collections`, `encoding`, `math`, `random`, `structures`, `time`, and
+  `util` packages.
+- From `text`: everything except `format` and `StringFormatException`.
+- From `coroutines`: everything except `retryWithBackoff`,
+  `runCatchingCancellable`, `parallelMap`, `parallelForEach`, `SingleFlight`,
+  and `suspendLazy`.
+- From `flow`: everything except `throttleFirst`, `mapAsync`, `mapState`, and
+  `combineStates`.
+
+### Changed
+
+- The web fallback warning of `ioDispatcher` no longer points to `WebWorker`.
+
+### Migration
+
+Most removed APIs have a direct replacement in the Kotlin standard library
+(2.2 or later), in kotlinx-coroutines, or in a kept KiteCore API.
+
+| Removed | Use instead |
+| --- | --- |
+| `toBase64`, `decodeBase64`, `toBase64Url`, `decodeBase64Url` | `kotlin.io.encoding.Base64`. For the unpadded URL-safe form, use `Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT)`. |
+| `toHex`, `decodeHex` | `toHexString()` and `hexToByteArray()` |
+| `Flow.chunked(size)` | `chunked(size)` from kotlinx-coroutines. The two had the same signature, so a file that imported both packages did not compile. |
+| `timeoutBetweenEmissions` | `Flow.timeout` |
+| `flowFromSuspend` | `(suspend () -> T).asFlow()` |
+| `firstOrDefault`, `lastOrDefault` | `firstOrNull() ?: default`, `lastOrNull() ?: default` |
+| `Flow.mapIndexed`, `filterIndexed`, `onEachIndexed` | `withIndex()` |
+| `startWith` | `onStart { emit(value) }` |
+| `retry`, `retryForever` | `retryWithBackoff` with `factor = 1.0`. For `retryForever`, pass `times = Int.MAX_VALUE`. |
+| `formatDecimals`, `formatGrouped`, `formatPercent` | `"%.2f".format(x)`, `"%,d".format(n)`, `"%.0f%%".format(x * 100)` |
+| `formatHms` | `Duration.toString()` |
+| `nextAlphanumeric` and the other random string helpers | `Uuid.random()` for identifiers |
+| `tryOrNull`, `tryOrDefault` | `runCatching { }.getOrNull()` and `getOrDefault(...)` |
+| `Counter`, `frequencies`, `countBy` | `groupingBy { }.eachCount()` |
+
+`format` rounds the way the JVM formatter does. For example,
+`"%.2f".format(1.005)` gives `1.01`, where `1.005.formatDecimals(2)` gave `1.00`.
+
 ## [0.1.0] - 2026-07-24
 
 ### Added

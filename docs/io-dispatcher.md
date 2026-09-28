@@ -51,8 +51,7 @@ Rules:
 - A later call replaces the previously installed dispatcher.
 - On JVM, Android, and Apple targets the call is a no-op, because `ioDispatcher` is already backed by a real thread pool. It is safe to call unconditionally from common code.
 
-!!! tip
-    kmp-ssot can generate a Worker-backed dispatcher for you: enable `web { generateIoWorker = true }` and pass the generated dispatcher to `installIoDispatcher`.
+KiteCore does not ship a Worker-backed dispatcher. Bring your own, and install it with `installIoDispatcher`.
 
 ## Understand the fallback warning
 
@@ -64,6 +63,6 @@ Dispatchers.Default (single-threaded JS event loop). Heavy/blocking work will
 not leave the main thread. ...
 ```
 
-The fallback is functional: coroutines still run, suspend, and resume correctly. What it cannot do is move CPU-heavy or blocking work off the main thread, so long computations will freeze the UI. To fix that, either install a Worker-backed dispatcher as shown above, or hand the specific job to [`WebWorker` / `runInWorker`](webworker.md).
+The fallback is functional: coroutines still run, suspend, and resume correctly. What it cannot do is move CPU-heavy or blocking work off the main thread, so long computations will freeze the UI. To fix that, install a Worker-backed dispatcher as shown above.
 
 The warning prints once, on the first fallback read. Installing a dispatcher afterwards still works: the next read resolves to it.

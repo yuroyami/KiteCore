@@ -10,15 +10,9 @@ plugins {
 }
 
 /*
- * The :kitecore module builds the KiteCore runtime library.
- *
- * v0.1.0 provides:
- *   - ioDispatcher: a unified IO CoroutineDispatcher. Dispatchers.IO on
- *     JVM, Android, and Apple (public on Native since coroutines 1.7), and
- *     an installed dispatcher or Dispatchers.Default on the web targets.
- *   - WebWorker (js and wasmJs): an inline Blob Web Worker offload
- *     primitive using protocol v2 (correlation ids).
- *   - Platform.current: name, osVersion, deviceModel, and family per target.
+ * The :kitecore module builds the KiteCore runtime library: four platform
+ * primitives (ioDispatcher, asyncWithProgress, WeakRef, Platform.current), a
+ * portable String.format, and a small set of coroutine and Flow helpers.
  *
  * The only dependency is kotlinx-coroutines-core, exposed via `api` because
  * ioDispatcher is a CoroutineDispatcher.
