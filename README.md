@@ -207,5 +207,5 @@ targets, so test there.
 Apache-2.0. See [NOTICE](NOTICE) and [CHANGELOG.md](CHANGELOG.md).
 
 Part of the Kite family: [KitePDF](https://github.com/yuroyami/KitePDF),
-[KiteImage](https://github.com/yuroyami/KiteImage),
+[KiteImageCodec](https://github.com/yuroyami/KiteImageCodec),
 [KiteQR](https://github.com/yuroyami/KiteQR).
