@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-29
+
 KiteCore now keeps only the APIs that fill a real gap in `commonMain`. This is
 a breaking change. Every kept API has the same signature as in 0.1.0, except
 `ProgressFuture` and `ProgressScope` (see Changed).

@@ -4,9 +4,9 @@ package io.github.yuroyami.kitecore
 
 /*
  * Kotlin/Wasm has no weak-reference primitive: the stdlib ships only the strong
- * JsReference<T> handle, and a JS WeakRef cannot hold a wasm-GC object (its
- * wrapper's lifetime is decoupled from the Kotlin object; see FABLE5_AUDIT.md
- * §12). WeakRef holds its referent strongly here and reports
+ * JsReference<T> handle, and a JS WeakRef cannot hold a wasm-GC object (the
+ * lifetime of its wrapper is not tied to the Kotlin object).
+ * WeakRef holds its referent strongly here and reports
  * isWeakSupported = false. get() returns the referent until clear(); callers
  * that need real weakness must gate on the flag.
  */
