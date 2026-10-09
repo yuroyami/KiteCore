@@ -1,0 +1,10 @@
+modules:
+  - build-plugins/abi-check
+  - build-plugins/dokka
+  - build-plugins/version-constant
+  - kitecore
+
+plugins:
+  - //build-plugins/abi-check
+  - //build-plugins/dokka
+  - //build-plugins/version-constant

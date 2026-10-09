@@ -9,31 +9,36 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  KOTLIN_CLI_NO_WELCOME_BANNER: 1
+
 jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Cache the Kotlin Toolchain downloads
+        uses: actions/cache@v4
         with:
-          distribution: temurin
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Build and test (JVM, Android host, JS, Wasm, ABI check)
-        run: >
-          ./gradlew :kitecore:jvmTest :kitecore:testAndroidHostTest
-          :kitecore:jsBrowserTest :kitecore:jsNodeTest
-          :kitecore:wasmJsBrowserTest :kitecore:wasmJsNodeTest
-          :kitecore:assemble check
+          path: ~/.cache/JetBrains/Kotlin
+          key: kotlin-toolchain-${{ runner.os }}-${{ hashFiles('kotlin', 'project.yaml', '**/module.yaml', 'libs.versions.toml', 'build-plugins/**/plugin.yaml') }}
+          restore-keys: kotlin-toolchain-${{ runner.os }}-
+      - name: Build (JVM, Android, JS, Wasm)
+        run: ./kotlin build -p jvm -p android -p js -p wasmJs
+      - name: Test (JVM, Android host, Wasm in the browser)
+        run: ./kotlin test -p jvm -p android -p wasmJs
+      - name: Check the public API and KiteCore.VERSION
+        run: ./kotlin check abi version
 
   apple:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Cache the Kotlin Toolchain downloads
+        uses: actions/cache@v4
         with:
-          distribution: temurin
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Apple targets (macOS + iOS simulator)
-        run: ./gradlew :kitecore:macosArm64Test :kitecore:iosSimulatorArm64Test
+          path: ~/Library/Caches/JetBrains/Kotlin
+          key: kotlin-toolchain-${{ runner.os }}-${{ hashFiles('kotlin', 'project.yaml', '**/module.yaml', 'libs.versions.toml', 'build-plugins/**/plugin.yaml') }}
+          restore-keys: kotlin-toolchain-${{ runner.os }}-
+      - name: Test (macOS, iOS simulator)
+        run: ./kotlin test -p macosArm64 -p iosSimulatorArm64

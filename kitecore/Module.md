@@ -1,4 +1,4 @@
-# Module kitecore
+# Module KiteCore
 
 Runtime utilities for Kotlin Multiplatform, for the pieces that `commonMain` does not have.
 

@@ -11,7 +11,11 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - '**/*.kt'
-      - '**/build.gradle.kts'
+      - '**/module.yaml'
+      - 'project.yaml'
+      - 'build-plugins/**'
+      - 'dokka-templates/**'
+      - 'kitecore/Module.md'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -42,17 +46,17 @@ jobs:
       - name: Build the docs site
         run: mkdocs build --site-dir site
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Cache the Kotlin Toolchain downloads
+        uses: actions/cache@v4
         with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+          path: ~/.cache/JetBrains/Kotlin
+          key: kotlin-toolchain-${{ runner.os }}-${{ hashFiles('kotlin', 'project.yaml', '**/module.yaml', 'libs.versions.toml', 'build-plugins/**/plugin.yaml') }}
+          restore-keys: kotlin-toolchain-${{ runner.os }}-
 
       - name: Generate the Dokka API reference
-        run: ./gradlew dokkaGenerate --no-configuration-cache
+        run: ./kotlin do dokka
+        env:
+          KOTLIN_CLI_NO_WELCOME_BANNER: 1
 
       - name: Merge the API reference into the site
         run: |

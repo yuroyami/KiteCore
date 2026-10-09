@@ -1,0 +1,24 @@
+tasks:
+  dump:
+    action: !io.github.yuroyami.buildplugins.abi.dumpJvmAbi
+      classes: ${module.classes}
+      dumpFile: ${taskOutputDir}/jvm.api
+
+  check:
+    action: !io.github.yuroyami.buildplugins.abi.checkJvmAbi
+      moduleName: ${module.name}
+      builtDump: ${tasks.dump.action.dumpFile}
+      committedDump: ${module.rootDir}/${pluginSettings.dumpDir}/${module.name}.api
+
+  update:
+    action: !io.github.yuroyami.buildplugins.abi.updateJvmAbi
+      builtDump: ${tasks.dump.action.dumpFile}
+      committedDump: ${tasks.check.action.committedDump}
+
+checks:
+  - name: abi
+    performedBy: check
+
+commands:
+  - name: updateAbi
+    performedBy: update
