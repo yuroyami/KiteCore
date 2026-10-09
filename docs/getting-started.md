@@ -18,6 +18,13 @@ kotlin {
 }
 ```
 
+With the [Kotlin Toolchain](https://kotlin-toolchain.org), add it to `module.yaml`:
+
+```yaml
+dependencies:
+  - io.github.yuroyami:kitecore:0.2.0
+```
+
 Supported targets: Android (minSdk 21), `jvm`, `iosArm64`, `iosSimulatorArm64`,
 `iosX64`, `macosArm64`, `js` (browser and Node), and `wasmJs` (browser and Node).
 

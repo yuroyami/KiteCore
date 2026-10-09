@@ -14,7 +14,7 @@
   <a href="https://central.sonatype.com/artifact/io.github.yuroyami/kitecore"><img src="https://img.shields.io/maven-central/v/io.github.yuroyami/kitecore?label=Maven%20Central" alt="Maven Central"></a>
   <a href="https://github.com/yuroyami/KiteCore/actions/workflows/ci.yml"><img src="https://github.com/yuroyami/KiteCore/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://yuroyami.github.io/KiteCore/"><img src="https://img.shields.io/badge/docs-yuroyami.github.io-1f6feb" alt="Docs"></a>
-  <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.4.10-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin 2.4.10"></a>
+  <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.4.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin 2.4.21"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
 </p>
 
@@ -113,10 +113,18 @@ kotlin {
 }
 ```
 
+With the [Kotlin Toolchain](https://kotlin-toolchain.org), add it to `module.yaml`:
+
+```yaml
+dependencies:
+  - io.github.yuroyami:kitecore:0.2.0
+```
+
 Good to know:
 
 - `kotlinx-coroutines-core` comes with KiteCore, so you do not add it yourself.
-- In a plain Android or JVM project, put the same line in your usual `dependencies { }` block.
+- In a plain Android or JVM Gradle project, put the `implementation(...)` line in your usual
+  `dependencies { }` block.
 
 > [!IMPORTANT]
 > 0.2.0 removed most of the helpers that 0.1.0 had. For each removed helper, the
@@ -289,9 +297,10 @@ read it.
 
 ## How it is tested
 
-92 shared tests run on each of eight targets: the JVM, the Android host, the iOS simulator,
-macOS, and JS and Wasm in both the browser and Node. 15 more tests cover cases that only
-the JVM or the web has. Every public function and class has a test.
+92 shared tests run on each of five targets: the JVM, the Android host, the iOS simulator,
+macOS, and Wasm in the browser. 14 more tests cover cases that only the JVM or Wasm has.
+The JS target compiles, but its tests do not run, because the Kotlin Toolchain cannot run
+JS tests yet. Every public function and class has a test.
 
 `String.format` is checked against `java.util.Formatter` itself. A seeded test compares
 60,000 random patterns on every JVM run. Before 0.2.0, a longer run compared about 2.3
@@ -303,7 +312,7 @@ caller that is cancelled while it waits, and a block that calls its own `SingleF
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). A change to the public API also needs a new ABI
-dump. Make it with `./gradlew :kitecore:updateKotlinAbi`. Every change comes with tests.
+dump. Make it with `./kotlin do updateAbi`. Every change comes with tests.
 Run them on the web targets too, because most subtle bugs show up there.
 
 ## License

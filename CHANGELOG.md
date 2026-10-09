@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The POM of the `kitecore` artifact depends on `kitecore-jvm`, so a plain Maven project can
+  depend on `kitecore` directly.
+
+### Changed
+
+- KiteCore now builds with the [Kotlin Toolchain](https://kotlin-toolchain.org) instead of
+  Gradle. The public API and the coordinates `io.github.yuroyami:kitecore` stay the same.
+- KiteCore now builds with Kotlin 2.4.21 instead of 2.4.10.
+- The Wasm artifact is now `kitecore-wasmjs` instead of `kitecore-wasm-js`. Gradle finds it
+  through the module metadata, so `implementation("io.github.yuroyami:kitecore:...")` keeps
+  working. Only a direct dependency on `kitecore-wasm-js` must change.
+- The Android classes are now Java 11 bytecode instead of Java 21 bytecode.
+- The javadoc jars are empty. The API reference is at
+  [yuroyami.github.io/KiteCore/api](https://yuroyami.github.io/KiteCore/api/).
+- The pages of the API reference moved from `api/kitecore/...` to `api/-kite-core/...`. The
+  start page `api/` stays the same.
+- The tests no longer run on JS, because the Kotlin Toolchain cannot run JS tests yet. The JS
+  target still builds, and the common tests still run on the JVM, Android, iOS, macOS and Wasm.
+
 ## [0.2.0] - 2026-09-29
 
 KiteCore now keeps only the APIs that fill a real gap in `commonMain`. This is
