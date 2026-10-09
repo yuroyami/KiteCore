@@ -3,43 +3,80 @@
 package io.github.yuroyami.kitecore.text
 
 /**
- * Thrown when a portable JVM-style format string is malformed, lacks an
- * argument, or uses an argument that is incompatible with its conversion.
+ * Thrown by [format] when the pattern is invalid or an argument does not fit it.
  *
- * The JVM exposes a family of `java.util.IllegalFormatException` subclasses.
- * Those types do not exist in common Kotlin, so KiteCore reports every
- * formatting failure through this single portable exception type.
+ * Typical causes: an unknown conversion such as `%q`, a missing argument, a flag that
+ * the conversion does not accept, a `%t` date conversion, or a value of the wrong type,
+ * such as a `String` for `%d`. Fix the pattern or the argument. The message names the
+ * problem and the part of the pattern that causes it.
+ *
+ * On the JVM, `java.util.Formatter` throws many `IllegalFormatException` subclasses.
+ * Those types do not exist in common code, so KiteCore uses this one type.
  */
 public class StringFormatException public constructor(message: String) : IllegalArgumentException(message)
 
 /**
- * Uses this string as a JVM-style format string and substitutes [args].
+ * Formats [args] into this pattern, with Java's `String.format` syntax, on every target.
  *
- * The implementation lives entirely in common code. It supports general
- * (`b`, `h`, `s`), character (`c`), integral (`d`, `o`, `x`), floating-point
- * (`e`, `f`, `g`, `a`), percent (`%`), and newline (`n`) conversions, including
- * their upper-case variants, argument indexes, relative argument reuse, flags,
- * width, and precision.
+ * The output is the output of `java.util.Formatter` with `Locale.ROOT`: `.` as the
+ * decimal point, `,` for grouping, and never the device locale.
  *
- * Formatting uses ROOT-like, locale-independent punctuation and case rules.
- * Unicode casing follows the data available on the target runtime. `%n` always
- * emits LF. Java-only values and date/time conversions are unsupported. When a
- * target erases runtime numeric identities, ambiguous numbers use
- * conversion-directed Int-or-Double semantics. `%s` and `%h` delegate to the
- * target value's Kotlin `toString` and `hashCode`, respectively.
+ * ### Example
+ * ```kotlin
+ * import io.github.yuroyami.kitecore.text.format
  *
- * @throws StringFormatException when the format or an argument is invalid.
+ * "%.1f%%".format(82.75)                  // "82.8%"
+ * "%-6s|%,d".format("total", 1234567)     // "total |1,234,567"
+ * "%2\$s: %1\$08X".format(255, "mask")    // "mask: 000000FF"
+ * ```
+ *
+ * ### Supported syntax
+ * | Conversion | Accepts |
+ * | --- | --- |
+ * | `%s` `%S`, `%b` `%B`, `%h` `%H` | any value |
+ * | `%c` `%C` | `Char`, or a code point as `Byte`, `Short` or `Int` |
+ * | `%d` `%o` `%x` `%X` | `Byte`, `Short`, `Int`, `Long` |
+ * | `%e` `%E` `%f` `%g` `%G` `%a` `%A` | `Float`, `Double` |
+ * | `%%`, `%n` | no argument: a `%`, and a line feed |
+ *
+ * Flags, width, precision, argument indexes (`%2$s`) and "same argument again"
+ * (`%<s`) work as on the JVM. A `null` argument prints `null`, or `false` for `%b`.
+ *
+ * ### Compared with the JVM `String.format`
+ * - `%n` is always `"\n"`, also on Windows.
+ * - There are no date and time conversions (`%t`), and no `BigInteger`,
+ *   `BigDecimal` or `Formattable` arguments.
+ * - `%s` and `%h` use the value's Kotlin `toString` and `hashCode`.
+ * - JS and Wasm can lose the difference between `Int`, `Float` and `Double` in a
+ *   `vararg Any?`. There the conversion decides: `%x` treats a small number as
+ *   `Int`, and `%f` treats a number as `Double`. Pass a `Long` when you need 64 bits.
+ *
+ * ### Watch out
+ * - Import `io.github.yuroyami.kitecore.text.format`. Without the import, common code
+ *   does not compile, and JVM code silently uses the JVM version, which follows the
+ *   device locale.
+ * - `%S` and the other upper-case conversions use the Unicode data of the runtime.
+ *   A very new character can differ between runtimes.
+ *
+ * @receiver the pattern, in `java.util.Formatter` syntax.
+ * @param args the values for the conversions, in order.
+ * @throws StringFormatException if the pattern is invalid, an argument is missing,
+ *   or an argument has the wrong type for its conversion.
  */
 public fun String.format(vararg args: Any?): String = PortableStringFormatter(this, args).format()
 
 /**
- * Formats [format] with [args] using KiteCore's portable JVM-style formatter.
+ * Formats [args] into the pattern [format]: the `String.format(pattern, args)` call shape.
  *
- * This companion extension provides the familiar `String.format(...)` call
- * shape in common Kotlin. See [String.format] for the supported conversions and
- * portability contract.
+ * ```kotlin
+ * String.format("%2\$s: %1\$08X", 255, "mask")   // "mask: 000000FF"
+ * ```
  *
- * @throws StringFormatException when the format or an argument is invalid.
+ * It gives the same output as `format.format(*args)`. The syntax, the differences from
+ * the JVM and the import are on [String.format].
+ *
+ * @throws StringFormatException if the pattern is invalid, an argument is missing,
+ *   or an argument has the wrong type for its conversion.
  */
 public fun String.Companion.format(format: String, vararg args: Any?): String = format.format(*args)
 

@@ -155,9 +155,9 @@ import io.github.yuroyami.kitecore.asyncWithProgress
 
 val open = scope.asyncWithProgress {
     val parse = slice(0.4f, "parsing")    // the first 40% of the bar
-    val load = slice(0.6f, "loading")     // the last 60%
-    parseHeader { parse.report(it) }
-    loadPages { done, total -> load.report(done, total) }
+    val header = parseHeader { parse.report(it) }
+    val load = slice(0.6f, "loading")     // the last 60%, taken when the step starts
+    loadPages(header) { done, total -> load.report(done, total) }
 }
 
 launch { open.progress.collect { render(it.fraction, it.phase) } }   // or collectAsState() in Compose
@@ -166,6 +166,8 @@ val document = open.await()
 
 - On success, the progress goes to 1. On failure or cancellation, it stays at its last value.
 - A report that arrives after the operation ends has no effect.
+- Take each `slice` when its step starts. A named slice reports its start at once, so
+  slices taken up front make the bar jump ahead and then back.
 - `await()` and `cancel()` are on the future. For `awaitAll` and `select`, use `open.deferred`.
 
 ### Hold an object weakly with `WeakRef`
@@ -287,8 +289,9 @@ read it.
 
 ## How it is tested
 
-107 tests run on eight targets: the JVM, the Android host, the iOS simulator, macOS, and
-JS and Wasm in both the browser and Node. Every public function and class has a test.
+92 shared tests run on each of eight targets: the JVM, the Android host, the iOS simulator,
+macOS, and JS and Wasm in both the browser and Node. 15 more tests cover cases that only
+the JVM or the web has. Every public function and class has a test.
 
 `String.format` is checked against `java.util.Formatter` itself. A seeded test compares
 60,000 random patterns on every JVM run. Before 0.2.0, a longer run compared about 2.3

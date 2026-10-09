@@ -23,5 +23,5 @@ This guide covers building and contributing to KiteCore.
 
 ## Commits
 
-Small, focused commits with imperative subjects. Reference the phase/finding if
-you're working from an audit document.
+Small, focused commits with imperative subjects. Reference the issue that the
+commit fixes, if there is one.

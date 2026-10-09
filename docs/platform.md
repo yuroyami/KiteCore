@@ -18,7 +18,7 @@ println(platform)              // "iOS 17.4 (iPhone15,3)"
 
 ## Branch on the family
 
-`PlatformFamily` is a coarse enum made for `when` in shared code: `ANDROID`, `JVM`, `IOS`, `MACOS`, `JS`, `WASM`, and `OTHER` as the fallback for hosts outside the named families.
+`PlatformFamily` is a coarse enum made for `when` in shared code: `ANDROID`, `JVM`, `IOS`, `MACOS`, `JS`, `WASM`, and `OTHER` for an Apple OS other than iOS and macOS. No target that KiteCore builds today returns `OTHER`; keep a branch for it so your code works when targets are added.
 
 ```kotlin
 import io.github.yuroyami.kitecore.Platform

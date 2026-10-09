@@ -8,6 +8,10 @@ One import brings in both call shapes:
 import io.github.yuroyami.kitecore.text.format
 ```
 
+!!! warning "Do not skip the import"
+    Without the import, common code does not compile. JVM code is worse: it compiles
+    against the JVM's own `String.format`, which follows the device locale.
+
 ## JVM-style string formatting
 
 Use Java's familiar formatter syntax from `commonMain`, without an

@@ -15,15 +15,33 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * Deduplicates concurrent work by key: callers with equal keys share one in-flight execution.
+ * Makes callers that ask for the same key at the same time share one run of the work.
  *
- * The first caller for a key runs its block; every caller that arrives while
- * that execution is in flight waits for it and receives the same result or
- * failure. When the execution finishes, the key is released and the next
- * caller starts a fresh one, so completed keys hold no memory.
+ * A flight is one run of the block for one key. The first caller for a key starts a
+ * flight. Callers that arrive while it runs join it: they wait and get the same result
+ * or the same failure. The name comes from Go's `singleflight` package.
  *
- * Thread safety: this class is safe for concurrent use from multiple
- * coroutines and threads; all internal state is guarded by a [Mutex].
+ * ### Example
+ * ```kotlin
+ * val tokenFlights = SingleFlight<String, Token>()
+ *
+ * suspend fun token(): Token =
+ *     tokenFlights.run("session") { api.refreshToken() }
+ *
+ * // Three screens call token() at the same time. refreshToken()
+ * // runs once, and all three get the same Token.
+ * ```
+ *
+ * ### Compared with a cache
+ * `SingleFlight` keeps nothing after a flight ends. The next call for the key starts
+ * a new flight. To keep a value, put a cache in front of it, or use [suspendLazy]
+ * for a single value.
+ *
+ * ### Threading
+ * All members are safe to call from any coroutine and any thread.
+ *
+ * @param K the key type. Keys match by `equals`.
+ * @param T the result type of the work.
  */
 public class SingleFlight<K, T> {
 
@@ -35,23 +53,20 @@ public class SingleFlight<K, T> {
     private val flights = HashMap<K, Flight<T>>()
 
     /**
-     * Runs [block] for [key], or joins an execution already in flight for an equal key.
+     * Runs [block] for [key], or joins the flight that already runs for an equal key.
      *
-     * The caller that starts the execution runs [block] in its own context;
-     * joining callers only wait. Every participant receives the same value, or
-     * the same failure thrown as-is. A `CancellationException` that [block]
-     * throws while its caller is still active, such as the timeout of a
-     * `withTimeout` inside [block], is such a shared failure.
+     * The caller that starts the flight runs [block] in its own coroutine context.
+     * A joining caller only waits. Every caller gets the same value, or the same
+     * exception, thrown as it is. A timeout of a `withTimeout` inside [block] is such
+     * a shared exception.
      *
-     * Cancellation: cancelling the executing caller cancels the shared
-     * execution; joining callers do not inherit that cancellation, they retry
-     * with a fresh execution instead. Cancelling a joining caller only stops
-     * its wait and rethrows. Flight cleanup runs in a [NonCancellable]
-     * context, so a cancelled execution never leaks its key.
+     * **Cancellation.** When the caller that runs [block] is cancelled, the flight
+     * stops. The joining callers do not get that cancellation: they start a new flight
+     * instead. When a joining caller is cancelled, only its own wait stops. A cancelled
+     * flight always frees its key.
      *
-     * @throws IllegalStateException if [block], or a coroutine started inside
-     *   it, calls [run] again with an equal key. That call would wait for its
-     *   own execution forever.
+     * @throws IllegalStateException if [block], or a coroutine started in it, calls
+     *   [run] with an equal key. That call would wait for itself forever.
      */
     public suspend fun run(key: K, block: suspend () -> T): T {
         val caller = currentCoroutineContext()[Job]
@@ -100,42 +115,29 @@ public class SingleFlight<K, T> {
         }
     }
 
-    /**
-     * Returns `true` while an execution for [key] is in flight.
-     *
-     * The answer is a snapshot; the flight may finish immediately after this
-     * function returns.
-     *
-     * Cancellation: waiting for the internal map lock is cancellable and
-     * rethrows.
-     */
+    /** Returns `true` while a flight runs for [key]. The flight can end right after this returns. */
     public suspend fun isInFlight(key: K): Boolean = mapLock.withLock { flights.containsKey(key) }
 
-    /**
-     * Returns the number of keys with an execution currently in flight.
-     *
-     * A quiescent instance reports 0.
-     *
-     * Cancellation: waiting for the internal map lock is cancellable and
-     * rethrows.
-     */
+    /** Returns the number of keys with a running flight, for example for logs or tests. */
     public suspend fun inFlightKeyCount(): Int = mapLock.withLock { flights.size }
 }
 
 private object UninitializedValue
 
 /**
- * A value initialized on first [get], with one shared initialization across concurrent callers.
+ * A lazy value whose initializer can suspend. Create one with [suspendLazy].
  *
- * The initializer runs in the context of the first caller. A failed
- * initialization is not cached: the failure propagates to that caller and the
- * next [get] runs the initializer again. After a successful initialization the
- * initializer reference is dropped and every later [get] returns without
- * suspending.
+ * The first [get] runs the initializer. Callers that call [get] at the same time
+ * wait for that one run. After a success, [get] returns the value without suspending.
  *
- * Thread safety: this class is safe for concurrent use from multiple
- * coroutines and threads; initialization is guarded by a [Mutex] and the
- * stored value by a volatile field.
+ * ### Compared with `lazy`
+ * - The initializer is a suspend function, and [get] is a suspend function.
+ * - A failure is not stored. The caller gets the exception, and the next [get] runs
+ *   the initializer again.
+ *
+ * ### Threading
+ * All members are safe to call from any coroutine and any thread. [isInitialized]
+ * and [valueOrNull] never suspend.
  */
 public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
 
@@ -148,22 +150,15 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
     @Volatile
     private var initializingJob: Job? = null
 
-    /**
-     * Returns `true` once a value has been successfully initialized.
-     *
-     * Cancellation: reading this property does not suspend and performs no
-     * cancellation checks.
-     */
+    /** `true` after the initializer succeeded. */
     public val isInitialized: Boolean get() = stored !== UninitializedValue
 
     /**
-     * Returns the initialized value, or `null` when no value exists yet, without initializing.
+     * Returns the value if the initializer already succeeded, else `null`. It never starts
+     * the initializer.
      *
-     * For a nullable [T], a stored `null` is indistinguishable from an
-     * uninitialized state; use [isInitialized] to tell them apart.
-     *
-     * Cancellation: this function does not suspend and performs no
-     * cancellation checks.
+     * When [T] is nullable, a stored `null` looks the same as "not initialized".
+     * Check [isInitialized] to tell them apart.
      */
     public fun valueOrNull(): T? {
         val value = stored
@@ -172,18 +167,15 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
     }
 
     /**
-     * Returns the value, running the initializer on the first call.
+     * Returns the value. The first call runs the initializer, in the coroutine context of
+     * that caller.
      *
-     * Concurrent first calls share one initialization: one caller runs the
-     * initializer while the others wait for its outcome.
+     * **Cancellation.** When the caller that runs the initializer is cancelled, the
+     * initializer stops and the value stays uninitialized. The next [get] runs it again.
+     * When a waiting caller is cancelled, only its own wait stops.
      *
-     * Cancellation: cancelling the initializing caller stops the initializer
-     * and leaves the value uninitialized; the next caller runs the initializer
-     * again. Cancelling a waiting caller only stops its wait and rethrows.
-     *
-     * @throws IllegalStateException if the initializer, or a coroutine started
-     *   inside it, calls [get] on this instance. That call would wait for its
-     *   own initialization forever.
+     * @throws IllegalStateException if the initializer, or a coroutine started in it,
+     *   calls [get] on this instance. That call would wait for itself forever.
      */
     public suspend fun get(): T {
         val fast = stored
@@ -217,13 +209,24 @@ public class SuspendLazy<T> internal constructor(initializer: suspend () -> T) {
 }
 
 /**
- * Creates a [SuspendLazy] backed by [initializer].
+ * Like [lazy], but the [initializer] can suspend. Read the value with [SuspendLazy.get].
  *
- * The initializer does not run until the first [SuspendLazy.get] call.
+ * ### Example
+ * ```kotlin
+ * val database = suspendLazy { openDatabase("app.db") }
  *
- * Cancellation: this function does not suspend and performs no cancellation
- * checks; cancellation semantics of the initialization are documented on
- * [SuspendLazy.get].
+ * suspend fun records(): List<Record> = database.get().queryAll()
+ * // The first get() opens the database.
+ * // Every later get() returns it at once.
+ * ```
+ *
+ * ### Watch out
+ * - A failure is not stored. The next [SuspendLazy.get] runs [initializer] again.
+ * - [initializer] must not call [SuspendLazy.get] on the same instance. That call
+ *   throws [IllegalStateException], because it would wait for itself forever.
+ *
+ * @param initializer the code that makes the value. It runs again after each failure,
+ *   and never again after the first success.
  */
 public fun <T> suspendLazy(initializer: suspend () -> T): SuspendLazy<T> = SuspendLazy(initializer)
 

@@ -9,26 +9,39 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 
 /**
- * Runs [block] up to [times] attempts with exponentially growing delays between failures.
+ * Runs [block] until it succeeds, at most [times] times, with a longer pause after each failure.
  *
- * The attempt number passed to [block] starts at 1. The first pause is
- * [initialDelay]; every following pause is the previous one multiplied by
- * [factor] and capped at [maxDelay]. A failure that [retryIf] rejects, and the
- * failure of the final attempt, are rethrown unchanged. For a fixed pause
- * between attempts, pass `factor = 1.0`.
+ * Returns the first successful result. When every attempt fails, it throws the
+ * failure of the last attempt, unchanged.
  *
- * Cancellation: when the calling coroutine is cancelled, the retries stop at
- * once and the cancellation is rethrown. It is never retried and never passed
- * to [retryIf]. A [CancellationException] that [block] throws while the caller
- * is still active is an ordinary failure. This covers the
- * `TimeoutCancellationException` of a `withTimeout` inside [block], so a
- * per-attempt timeout is retried like any other failure.
+ * ### Example
+ * ```kotlin
+ * val user = retryWithBackoff(
+ *     times = 5,
+ *     initialDelay = 100.milliseconds,
+ *     maxDelay = 1.seconds,
+ * ) {
+ *     withTimeout(2.seconds) { api.fetchUser(id) }
+ * }
+ * // Pauses between the 5 attempts: 100 ms, 200 ms, 400 ms, 800 ms.
+ * ```
  *
- * @param times the maximum number of attempts, at least 1.
- * @param initialDelay the pause after the first failed attempt.
- * @param factor the multiplier applied to the pause after each failed attempt.
- * @param maxDelay the upper bound for any pause.
- * @param retryIf returns `true` when the given failure should be retried.
+ * ### Cancellation
+ * - When the caller is cancelled, the retries stop at once and the cancellation is
+ *   thrown. It is never retried, and [retryIf] never sees it.
+ * - A [CancellationException] from inside [block], while the caller is still active,
+ *   is an ordinary failure. So a timeout of a `withTimeout` inside [block] is retried,
+ *   as in the example.
+ *
+ * @param times the maximum number of attempts, first attempt included. At least 1.
+ *   `times = 3` means one attempt and up to two retries.
+ * @param initialDelay the pause after the first failure. Zero or more.
+ * @param factor each pause is the previous pause times [factor]. `2.0` doubles it.
+ *   `1.0` keeps a fixed pause. Must be a positive finite number.
+ * @param maxDelay the longest pause. Zero or more. The default means no limit.
+ * @param retryIf returns `true` for a failure that should be retried. A failure that it
+ *   rejects is thrown at once. The default retries every failure.
+ * @param block the work. Its parameter is the attempt number, starting at 1.
  * @throws IllegalArgumentException if [times] is less than 1, [initialDelay] or
  *   [maxDelay] is negative, or [factor] is not a positive finite number.
  */
@@ -60,17 +73,32 @@ public suspend fun <T> retryWithBackoff(
 }
 
 /**
- * Runs [block] and wraps its outcome in a [Result], keeping cancellation intact.
+ * Like [runCatching], but safe in suspend code: it never swallows the cancellation of the caller.
  *
- * This is the suspend-safe counterpart of [runCatching]: every ordinary failure
- * becomes [Result.failure], while the caller's cancellation still propagates.
+ * Returns [Result.success] with the value of [block], or [Result.failure] with its
+ * exception. Use it wherever you would write `runCatching` around a suspend call.
  *
- * Cancellation: when the calling coroutine is cancelled, its cancellation is
- * rethrown and never captured, even when [block] turned it into another
- * exception. A [CancellationException] that [block] throws while the caller is
- * still active is captured as a failure. This covers the
- * `TimeoutCancellationException` of a `withTimeout` inside [block], and the
- * exception of awaiting a `Deferred` that was cancelled elsewhere.
+ * ### Example
+ * ```kotlin
+ * val state = runCatchingCancellable { api.fetchDashboard() }.fold(
+ *     onSuccess = { DashboardState.Content(it) },
+ *     onFailure = { DashboardState.Error(it) },
+ * )
+ * ```
+ *
+ * ### Compared with `runCatching`
+ * `runCatching` also catches the `CancellationException` of a cancelled coroutine. The
+ * coroutine then keeps running after its scope was cancelled, for example on a screen
+ * that the user already left. `runCatchingCancellable` throws that cancellation on.
+ *
+ * ### Cancellation
+ * - When the caller is cancelled, the cancellation is thrown, even when [block]
+ *   turned it into another exception.
+ * - A [CancellationException] from inside [block], while the caller is still active,
+ *   becomes [Result.failure]. Examples: the timeout of a `withTimeout` inside [block],
+ *   or `await()` on a `Deferred` that other code cancelled.
+ *
+ * @see retryWithBackoff
  */
 public suspend fun <T> runCatchingCancellable(block: suspend () -> T): Result<T> =
     try {
@@ -81,17 +109,14 @@ public suspend fun <T> runCatchingCancellable(block: suspend () -> T): Result<T>
     }
 
 /**
- * Runs [block] with `this` as its receiver and wraps its outcome in a [Result], keeping cancellation intact.
+ * The receiver form of [runCatchingCancellable]: [block] runs with `this` as its receiver.
  *
- * This is the suspend-safe counterpart of the receiver form of [runCatching]:
- * every ordinary failure becomes [Result.failure], while the caller's
- * cancellation still propagates.
+ * ```kotlin
+ * val config: Result<Config> =
+ *     rawJson.runCatchingCancellable { parseConfig(this) }
+ * ```
  *
- * Cancellation: when the calling coroutine is cancelled, its cancellation is
- * rethrown and never captured, even when [block] turned it into another
- * exception. A [CancellationException] that [block] throws while the caller is
- * still active is captured as a failure. This covers the
- * `TimeoutCancellationException` of a `withTimeout` inside [block].
+ * The cancellation rules are the same as for the form without a receiver.
  */
 public suspend fun <T, R> T.runCatchingCancellable(block: suspend T.() -> R): Result<R> =
     try {

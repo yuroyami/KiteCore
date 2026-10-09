@@ -17,13 +17,29 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 
 /**
- * Emits the first value, then drops every value that arrives within [window] of the last emission.
+ * Emits a value, then ignores new values until [window] has passed. For taps and other bursts.
  *
- * The window opens again once [window] has elapsed after an emitted value; the next value to
- * arrive is emitted and starts a new window. Dropped values are lost, not conflated.
- * Cancellation of the collector cancels the upstream and the internal timer.
+ * The first value passes at once. Values that arrive in the next [window] are dropped.
+ * After the window, the next value passes and starts a new window.
  *
- * @throws IllegalArgumentException if [window] is not positive.
+ * ### Example
+ * ```kotlin
+ * buttonClicks.throttleFirst(500.milliseconds).collect { submitOrder() }
+ * // Taps at 0 ms, 100 ms and 700 ms submit twice: at 0 ms and at 700 ms.
+ * ```
+ *
+ * ### Compared with `debounce` and `sample`
+ * `debounce` waits for a quiet period and then emits the last value. `sample` emits the
+ * latest value once per period. `throttleFirst` emits the first value at once.
+ *
+ * ### Watch out
+ * - Dropped values are lost. After the window, the next new value passes, not the
+ *   last dropped value.
+ * - The window starts when the collector has finished with the emitted value. A slow
+ *   collector makes the effective window longer.
+ *
+ * @param window how long to drop values after each emitted value. Must be positive.
+ * @throws IllegalArgumentException if [window] is zero or negative.
  */
 public fun <T> Flow<T>.throttleFirst(window: Duration): Flow<T> {
     require(window > Duration.ZERO) { "window must be positive but was $window" }
@@ -47,13 +63,27 @@ public fun <T> Flow<T>.throttleFirst(window: Duration): Flow<T> {
 }
 
 /**
- * Maps values through [transform] with up to [concurrency] invocations in flight, preserving upstream order.
+ * Like [map][kotlinx.coroutines.flow.map], but runs up to [concurrency] calls of
+ * [transform] at the same time. The output keeps the input order.
  *
- * A result is emitted only after the results of all earlier values have been emitted, so one
- * slow transform delays later results. The upstream is collected only while permits are
- * available, which bounds memory at [concurrency] pending results. A failure in [transform]
- * or the upstream cancels all in-flight work and fails the flow.
+ * ```kotlin
+ * urls.asFlow()
+ *     .mapAsync(concurrency = 4) { download(it) }
+ *     .collect { save(it) }
+ * // Four downloads run at a time. The files arrive in the order of urls.
+ * ```
  *
+ * ### Compared with `flatMapMerge`
+ * `flatMapMerge` emits each result when it is ready, in any order. `mapAsync` keeps
+ * the order, so one slow call holds back the results after it.
+ *
+ * ### How it runs
+ * - `mapAsync` reads the next upstream value only when fewer than [concurrency] calls
+ *   are waiting. So at most [concurrency] results are in memory.
+ * - A failure in [transform] or in the upstream cancels all running calls, and the
+ *   flow fails with that exception.
+ *
+ * @param concurrency the largest number of calls that run at the same time. At least 1.
  * @throws IllegalArgumentException if [concurrency] is less than 1.
  */
 public fun <T, R> Flow<T>.mapAsync(concurrency: Int, transform: suspend (T) -> R): Flow<R> {

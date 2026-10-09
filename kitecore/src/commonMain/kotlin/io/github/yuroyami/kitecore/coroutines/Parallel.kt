@@ -9,20 +9,38 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Transforms every element concurrently and returns the results in the original order.
+ * Like [map], but runs [transform] for many elements at the same time. The results keep
+ * the input order.
  *
- * At most [concurrency] transforms run at the same time. Below the element
- * count, a fixed pool of [concurrency] worker coroutines takes the elements in
- * order, so a large input does not create one coroutine per element. The first
- * failing transform cancels the remaining work and its failure is rethrown to
- * the caller. The elements are copied before the work starts, so a later change
- * to the source collection does not affect the result.
+ * ### Example
+ * ```kotlin
+ * val profiles = userIds.parallelMap(concurrency = 8) { id ->
+ *     api.fetchProfile(id)
+ * }
+ * // profiles[i] belongs to userIds[i], whatever order the calls end in.
+ * ```
  *
- * Cancellation: cancelling the calling coroutine cancels every in-flight
- * transform before rethrowing.
+ * ### How it runs
+ * - At most [concurrency] calls run at the same time. A large input does not start
+ *   one coroutine per element: a fixed group of [concurrency] coroutines takes the
+ *   elements in order.
+ * - The first failure cancels the other calls, and `parallelMap` throws it.
+ * - `parallelMap` copies the elements before it starts. A later change to the source
+ *   collection does not change the result.
  *
- * @param concurrency the maximum number of concurrent transforms, at least 1.
+ * ### Cancellation
+ * When the caller is cancelled, every running call is cancelled before the
+ * cancellation is thrown.
+ *
+ * ### Watch out
+ * - The default [concurrency] has no limit. For network or disk work, pass a limit.
+ * - The calls run on the dispatcher of the caller. For blocking calls, wrap the
+ *   work in `withContext(ioDispatcher)`.
+ *
+ * @param concurrency the largest number of calls that run at the same time. At least 1.
+ *   The default, [Int.MAX_VALUE], means no limit.
  * @throws IllegalArgumentException if [concurrency] is less than 1.
+ * @see parallelForEach
  */
 public suspend fun <T, R> Iterable<T>.parallelMap(
     concurrency: Int = Int.MAX_VALUE,
@@ -44,18 +62,18 @@ public suspend fun <T, R> Iterable<T>.parallelMap(
 }
 
 /**
- * Runs [action] for every element concurrently and returns when all have finished.
+ * Like [forEach], but runs [action] for many elements at the same time. Returns when all
+ * are done.
  *
- * At most [concurrency] actions run at the same time. Below the element count,
- * a fixed pool of [concurrency] worker coroutines takes the elements in order,
- * so a large input does not create one coroutine per element. The first failing
- * action cancels the remaining work and its failure is rethrown to the caller.
- * The elements are copied before the work starts.
+ * ```kotlin
+ * staleEntries.parallelForEach(concurrency = 16) { cache.evict(it) }
+ * ```
  *
- * Cancellation: cancelling the calling coroutine cancels every in-flight
- * action before rethrowing.
+ * The rules for the limit, failures, cancellation and the copy of the elements are
+ * the same as for [parallelMap].
  *
- * @param concurrency the maximum number of concurrent actions, at least 1.
+ * @param concurrency the largest number of calls that run at the same time. At least 1.
+ *   The default, [Int.MAX_VALUE], means no limit.
  * @throws IllegalArgumentException if [concurrency] is less than 1.
  */
 public suspend fun <T> Iterable<T>.parallelForEach(

@@ -16,19 +16,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * An immutable snapshot of an operation's progress: a [fraction] and an optional
- * [phase] label.
+ * One progress report: how far the operation is (`fraction`) and what it does now (`phase`).
  *
- * Holding both values in one snapshot lets a collector render a fraction and a
- * label that belong to the same report. Equality is by value. [StateFlow]
- * conflates on `equals`, so reporting an equal progress twice wakes no collectors.
+ * Both values live in one object, so a progress bar never shows the fraction of
+ * one report with the label of another. You read it from [ProgressFuture.progress].
+ * You construct it yourself only for [withProgress].
  *
- * The constructor never throws. An out-of-range [fraction] is clamped into `0..1`,
- * and `NaN` becomes indeterminate.
+ * ```kotlin
+ * Progress(0.42f, "pages")   // toString(): "Progress(42%, pages)"
+ * Progress(null)             // toString(): "Progress(indeterminate)"
+ * ```
+ *
+ * The constructor never throws. A [fraction] outside `0..1` is clamped, and `NaN`
+ * becomes `null`. Two reports with equal values are equal, so a [StateFlow] does
+ * not wake its collectors for a repeated report.
+ *
+ * @param fraction the done part of the work, from `0f` to `1f`, not a percent. `null`
+ *   means the total is not known yet (an indeterminate bar).
+ * @property phase a short label for the current step, such as `"parsing"`, or `null`.
  */
 public class Progress(fraction: Float?, public val phase: String? = null) {
 
-    /** Completed fraction in `0..1`, or `null` while the total is unknown. */
+    /** The done part of the work in `0..1`, or `null` while the total is not known. */
     public val fraction: Float? = fraction?.takeUnless { it.isNaN() }?.coerceIn(0f, 1f)
         ?.let { if (it == 0f) 0f else it } // -0f becomes 0f, so equal values share a hash code
 
@@ -44,34 +53,43 @@ public class Progress(fraction: Float?, public val phase: String? = null) {
 }
 
 /**
- * The handle of an operation that reports progress: its result as a [deferred], plus live [progress].
+ * A running operation that you can await, plus its live `progress`.
  *
- * [await] and [cancel] forward to [deferred]. Use [deferred] for every other
- * [Deferred] operation, such as `awaitAll`, `select`, or `invokeOnCompletion`.
- * [progress] is a conflated [StateFlow] of the latest [Progress], observable
- * from Compose via `progress.collectAsState()`.
+ * You get one from [asyncWithProgress], or from [withProgress] for an operation
+ * that already has a progress flow. Use one per operation that the user sees,
+ * such as "open document" or "download file", not one per inner step.
  *
- * Apply progress policy such as throttling or monotonic bars with a `Flow`
- * operator, for example `progress.sample(100.milliseconds)`.
+ * ```kotlin
+ * val opening = scope.asyncWithProgress { loadDocument() }
+ * launch { opening.progress.collect { bar.show(it.fraction, it.phase) } }
+ * val document = opening.await()
+ * ```
  *
- * Create one with [asyncWithProgress], or adapt an existing pair with
- * [withProgress]. The intended granularity is one `ProgressFuture` per
- * user-visible operation such as opening a document or downloading a file, not
- * per inner step.
+ * ### Compared with `Deferred`
+ * A `ProgressFuture` is not a `Deferred`, because kotlinx-coroutines does not allow
+ * other classes to implement `Deferred`. [await] and [cancel] are here. For
+ * `awaitAll`, `select` or `invokeOnCompletion`, use [deferred].
+ *
+ * ### Watch out
+ * - [progress] keeps only the latest value. A slow collector skips reports. To limit
+ *   UI updates, use a `Flow` operator such as `progress.sample(100.milliseconds)`.
  */
 public class ProgressFuture<out T> internal constructor(
-    /** The running operation. */
+    /** The running operation, for every `Deferred` API that this class does not forward. */
     public val deferred: Deferred<T>,
     /**
-     * Latest progress. For [asyncWithProgress] it starts indeterminate, becomes
-     * `fraction = 1f` on success, and freezes on failure or cancellation.
+     * The latest [Progress]. In Compose, read it with `progress.collectAsState()`.
+     *
+     * From [asyncWithProgress], it starts indeterminate and goes to `1f` on success.
+     * On failure or cancellation it keeps its last value, so read the outcome from
+     * [await] or [deferred], not from the bar.
      */
     public val progress: StateFlow<Progress>,
 ) {
-    /** Waits for the result, like [Deferred.await]. */
+    /** Waits for the result, like [Deferred.await]. Throws the failure of the operation. */
     public suspend fun await(): T = deferred.await()
 
-    /** Cancels the operation, like [Deferred.cancel]. Progress freezes at its last value. */
+    /** Cancels the operation, like [Deferred.cancel]. [progress] keeps its last value. */
     public fun cancel(cause: CancellationException? = null) {
         deferred.cancel(cause)
     }
@@ -80,71 +98,110 @@ public class ProgressFuture<out T> internal constructor(
 }
 
 /**
- * The receiver scope of an [asyncWithProgress] block: a [CoroutineScope] that can
- * [report] progress and divide the remaining bar into sequential [slice]s.
+ * The receiver of an [asyncWithProgress] block: a [CoroutineScope] that can [report]
+ * progress and split the bar into [slice]s.
  *
- * [report] may be called from any thread. [slice] must be called sequentially
- * from the job's own flow; slices are windows allocated left to right, not a
- * concurrent tree. Parallel workers can each call [report], but their reports
- * may arrive out of order. For a bar that never moves back, keep one shared
- * counter of finished units, report it with `report(done, total)`, and make the
- * bar monotonic at the consumer with a `Flow` operator.
+ * Each `ProgressScope` owns a window, which is a part of the whole bar. The block's
+ * own scope owns the whole bar. A slice owns a part of its parent's window. A report
+ * of `0.5f` in a slice fills half of that slice, not half of the bar.
  *
- * Once the operation finishes, fails, or is cancelled, reports have no effect.
- * A late report from another thread therefore cannot move a finished bar.
+ * The phase is the label of the current step. It is sticky: a report without a
+ * phase keeps the last phase.
+ *
+ * You cannot implement this interface. Only [asyncWithProgress] creates it.
+ *
+ * ### Threading
+ * - [report] is safe from any thread, for example from parallel workers.
+ * - Call [slice] and change the phase only from the block's own sequential code.
+ *
+ * ### Watch out
+ * - Reports from parallel workers can arrive out of order, so the bar can move back
+ *   a little. Count finished units in one shared counter and report it with
+ *   `report(done, total)`. For a bar that never moves back, filter at the collector.
+ * - After the operation completes, fails or is cancelled, reports do nothing.
  */
 public sealed interface ProgressScope : CoroutineScope {
 
     /**
-     * Reports progress within this scope's window.
+     * Reports how far this scope's window is done.
      *
-     * [fraction] is a value in `0..1`, or `null` for indeterminate. This method
-     * never throws; an out-of-range [fraction] is clamped. Prefer coarse units
-     * such as per page or per percent rather than per byte, since each distinct
-     * report allocates and, when observed, wakes collectors.
+     * Report in coarse steps, such as per page or per percent, not per byte. Each
+     * new value allocates a [Progress] and wakes the collectors. This function never
+     * throws.
      *
-     * Phase labels are sticky. A non-null [phase] updates this scope's label, and
-     * later reports retain it, so a stage's label does not need re-passing on
-     * every fraction tick. Phase updates should come from the job's own flow.
+     * @param fraction the done part of this window, from `0f` to `1f`, not a percent.
+     *   `null` means indeterminate. A value outside `0..1` is clamped.
+     * @param phase a new label for the current step, or `null` to keep the current label.
      */
     public fun report(fraction: Float?, phase: String? = null)
 
-    /** Reports `done` of `total` completed units, or indeterminate when `total <= 0`. */
+    /**
+     * Reports [done] of [total] units, for example `report(done = 3, total = 10)` for 30%.
+     *
+     * @param total the unit count. Zero or less means indeterminate, for a total
+     *   that is not known yet.
+     * @param phase a new label for the current step, or `null` to keep the current label.
+     */
     public fun report(done: Long, total: Long, phase: String? = null)
 
     /**
-     * Allocates the next [weight] of this scope's window to a sub-scope.
+     * Takes the next part of this window for one step and returns a scope for it.
      *
-     * [weight] is a fraction in `0..1` of this scope's window. The returned scope
-     * maps its own `0..1` reports into that window, and its slices nest further. A
-     * non-null [phase] labels the slice and is reported immediately at its start;
-     * an unnamed slice inherits the current label. A [weight] beyond the remaining
-     * window is clamped, and weights should sum to at most 1.
+     * Slices are taken left to right. Three slices of `0.2f`, `0.3f` and `0.5f` cover
+     * this window in that order. A slice can have its own slices.
+     *
+     * ```kotlin
+     * val parse = slice(0.4f, "parsing")   // 0% to 40% of this window
+     * parse.report(0.5f)                   // bar: 20%, "parsing"
+     * val load = slice(0.6f, "loading")    // 40% to 100%. Bar: 40%, "loading"
+     * ```
+     *
+     * **Watch out.** Take a named slice when its step starts, not all slices up front.
+     * A named slice reports its start at once, so the bar would jump to the last slice
+     * and then back.
+     *
+     * @param weight the part of this window, from `0f` to `1f`. The weights of all
+     *   slices of one scope should add up to 1 or less. A weight larger than the
+     *   remaining part is cut to fit.
+     * @param phase the label of the step. A named slice reports `0f` with this label
+     *   at once. With `null`, the slice keeps the current label.
      */
     public fun slice(weight: Float, phase: String? = null): ProgressScope
 }
 
 /**
- * Starts a coroutine like [async] and returns a [ProgressFuture] that reports its
- * progress.
+ * Starts a coroutine like [async], and also publishes its progress as a [StateFlow].
  *
- * The [block] runs with a [ProgressScope] receiver, so it can report progress
- * and slice the bar. On success, progress is completed to `fraction = 1f`, keeping
- * the last phase. On failure or cancellation, progress freezes at the last value
- * reported while the operation was active. [context] and [start] behave as in [async].
+ * The [block] runs with a [ProgressScope] receiver. Call [ProgressScope.report] in it
+ * to move the bar, and [ProgressScope.slice] to split the bar into weighted steps.
+ * Read the bar from [ProgressFuture.progress] and the result from [ProgressFuture.await].
  *
+ * ### Example
  * ```kotlin
- * val opening: ProgressFuture<PdfDocument> = scope.asyncWithProgress {
- *     val header = slice(0.05f, "header")
- *     val xref   = slice(0.25f, "xref")
- *     val pages  = slice(0.70f, "pages")
- *     header.report(1f)
- *     val table = parseXref(xref)
- *     loadPages(table) { done, total -> pages.report(done, total) }
+ * val opening = scope.asyncWithProgress {
+ *     val parse = slice(0.4f, "parsing")   // the first 40% of the bar
+ *     val header = parseHeader { parse.report(it) }
+ *     // The last 60%. Take a slice when its step starts.
+ *     val load = slice(0.6f, "loading")
+ *     loadPages(header) { done, total -> load.report(done, total) }
  * }
- * opening.progress.collect { ui.show(it) }  // or collectAsState() in Compose
- * val doc = opening.await()
+ * // Prints values such as "Progress(70%, loading)".
+ * launch { opening.progress.collect { println(it) } }
+ * val document = opening.await()
  * ```
+ *
+ * ### Lifecycle of the bar
+ * | Moment | [ProgressFuture.progress] |
+ * | --- | --- |
+ * | Start | `Progress(null)`, indeterminate |
+ * | Success | `1f`, with the last phase. You do not need a final `report(1f)`. |
+ * | Failure or cancellation | the last value, frozen |
+ *
+ * @param context added to the context of the new coroutine, as in [async].
+ * @param start when the coroutine starts, as in [async].
+ * @param block the operation. Its return value is the result of [ProgressFuture.await].
+ * @see ProgressFuture
+ * @see ProgressScope
  */
 public fun <T> CoroutineScope.asyncWithProgress(
     context: CoroutineContext = EmptyCoroutineContext,
@@ -162,12 +219,28 @@ public fun <T> CoroutineScope.asyncWithProgress(
 }
 
 /**
- * Adapts an existing [Deferred] and an external progress [StateFlow] into a
- * [ProgressFuture].
+ * Joins a [Deferred] and a progress flow that you already have into one [ProgressFuture].
  *
- * Use it to wrap an API that already exposes both halves, such as a Ktor download
- * whose `onDownload` callback feeds a [MutableStateFlow]. The adapter does not
- * change [progress] when the [Deferred] completes; its owner does.
+ * Use it for an API that reports progress through a callback, such as a Ktor
+ * download with `onDownload`.
+ *
+ * ```kotlin
+ * val state = MutableStateFlow(Progress(null, "downloading"))
+ * val download = scope.async {
+ *     client.get(url) {
+ *         onDownload { sent, total ->
+ *             val fraction = total?.let { sent.toFloat() / it }
+ *             state.value = Progress(fraction, "downloading")
+ *         }
+ *     }.body<ByteArray>()
+ * }.withProgress(state)
+ * ```
+ *
+ * ### Watch out
+ * - This function never changes [progress]. Unlike [asyncWithProgress], it does not
+ *   set `1f` on success. Your own code sets every value.
+ *
+ * @param progress the flow that [ProgressFuture.progress] returns, unchanged.
  */
 public fun <T> Deferred<T>.withProgress(progress: StateFlow<Progress>): ProgressFuture<T> =
     ProgressFuture(this, progress)

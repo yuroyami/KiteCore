@@ -17,7 +17,7 @@ buttonClicks
 // emitted click are dropped. The window reopens 500 ms after each emission.
 ```
 
-Dropped values are lost, not conflated: after the window reopens, the next value to arrive is emitted, not the last one that was dropped. Cancelling the collector cancels the upstream and the internal timer.
+Dropped values are lost, not conflated: after the window reopens, the next value to arrive is emitted, not the last one that was dropped. The window starts when the collector has finished with the emitted value, so a slow collector makes the window longer. Cancelling the collector cancels the upstream and the internal timer.
 
 ## Concurrent mapping with mapAsync
 

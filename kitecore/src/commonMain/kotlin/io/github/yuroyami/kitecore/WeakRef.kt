@@ -3,40 +3,55 @@
 package io.github.yuroyami.kitecore
 
 /**
- * A weak reference to [T]. Holds its referent without preventing garbage
- * collection.
+ * A reference that does not keep its object alive, from common code.
  *
- * [get] returns the referent, or `null` once it has been collected or after
- * [clear]. Query [isWeakSupported] before relying on collection for correctness.
+ * The object that a `WeakRef` points to is its referent. While other code holds the
+ * referent, [get] returns it. After the garbage collector frees it, [get] returns
+ * `null`. Use it for caches and listeners that must not cause a memory leak.
  *
- * Platform behavior:
- * - JVM, Android, Apple/Native: backed by the platform weak reference.
- * - Kotlin/JS: backed by the ES2021 `WeakRef` global. On a runtime older than
- *   ES2021, and for referents backed by JS primitives (`String`, boxed numbers)
- *   that are not valid `WeakRef` targets, the referent is held strongly.
- * - Kotlin/Wasm: no weak primitive exists, so the referent is held strongly and
- *   [isWeakSupported] is `false`.
- *
+ * ### Example
  * ```kotlin
- * val weak = WeakRef(expensiveThing)
- * val thing = weak.get() ?: rebuild() // null if it was collected
+ * val ref = WeakRef(bitmap)
+ * // get() returns null after the bitmap was collected.
+ * val image = ref.get() ?: reloadBitmap()
  * ```
+ *
+ * ### Platform differences
+ * | Target | Weak? |
+ * | --- | --- |
+ * | JVM, Android, iOS, macOS | Yes, backed by the platform weak reference |
+ * | JS, ES2021 and later | Yes, backed by the JS `WeakRef`, except for strings and numbers |
+ * | JS before ES2021 | No, it holds the referent strongly |
+ * | Wasm | No, it holds the referent strongly |
+ *
+ * ### Watch out
+ * - Always handle the `null` from [get]. The collector can free the referent at any
+ *   time after the last strong reference is gone.
+ * - Where the referent is held strongly, only [clear] frees it. If your design needs
+ *   the memory back, check [isWeakSupported].
+ * - On JS, strings and boxed numbers are held strongly even when [isWeakSupported] is
+ *   `true`. Wrap them in your own class when that matters.
+ *
+ * @param referred the referent.
  */
 public expect class WeakRef<T : Any>(referred: T) {
-    /** The referent, or `null` if it has been collected or [clear]ed. */
+    /** Returns the referent, or `null` after it was collected or after [clear]. */
     public fun get(): T?
 
-    /** Drops the reference. Subsequent calls to [get] return `null`. Idempotent. */
+    /** Drops the referent now. Every later [get] returns `null`. A second call does nothing. */
     public fun clear()
 
     public companion object {
         /**
-         * Whether the platform provides real weak semantics.
+         * `true` when this platform has real weak references, so the collector can free
+         * a referent.
          *
-         * `true` on JVM, Android, Apple/Native, and JS runtimes with `WeakRef`.
-         * `false` on Kotlin/Wasm and on JS runtimes older than ES2021, where no
-         * weak primitive exists: there [WeakRef] holds its referent strongly and
-         * [get] returns non-`null` until [clear].
+         * `false` on Wasm and on JS runtimes older than ES2021. There [WeakRef] holds
+         * its referent strongly, and [get] returns it until [clear].
+         *
+         * ```kotlin
+         * val cache = if (WeakRef.isWeakSupported) WeakCache() else SizeLimitedCache(8)
+         * ```
          */
         public val isWeakSupported: Boolean
     }

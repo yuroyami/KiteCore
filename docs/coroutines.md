@@ -145,6 +145,6 @@ Every public declaration in `io.github.yuroyami.kitecore.coroutines`, alphabetic
 | `parallelForEach(concurrency, action)` | Concurrent action per element; returns when all finished |
 | `parallelMap(concurrency, transform)` | Concurrent map preserving order |
 | `retryWithBackoff(times, initialDelay, factor, maxDelay, retryIf, block)` | Exponential-delay attempts with a failure filter |
-| `runCatchingCancellable(block)` | `runCatching` that rethrows `CancellationException`; plain and receiver forms |
+| `runCatchingCancellable(block)` | `runCatching` that rethrows the caller's own cancellation; plain and receiver forms |
 | `SingleFlight<K, T>` | Shares one in-flight execution per key; members `run`, `isInFlight`, `inFlightKeyCount` |
 | `SuspendLazy<T>` / `suspendLazy(initializer)` | Value initialized on first `get`, shared across concurrent callers; members `get`, `valueOrNull`, `isInitialized` |

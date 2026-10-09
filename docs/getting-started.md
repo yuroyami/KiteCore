@@ -18,8 +18,8 @@ kotlin {
 }
 ```
 
-Supported targets: `androidTarget`, `jvm`, `iosArm64`, `iosSimulatorArm64`,
-`iosX64`, `macosArm64`, `js(browser, nodejs)`, `wasmJs(browser, nodejs)`.
+Supported targets: Android (minSdk 21), `jvm`, `iosArm64`, `iosSimulatorArm64`,
+`iosX64`, `macosArm64`, `js` (browser and Node), and `wasmJs` (browser and Node).
 
 ## Step 2: Move blocking work off the main thread
 
@@ -45,9 +45,9 @@ See [IO dispatcher](io-dispatcher.md) for the web setup.
 import io.github.yuroyami.kitecore.asyncWithProgress
 
 val export = scope.asyncWithProgress {
-    val fetch = slice(0.4f, "fetching")
-    val write = slice(0.6f, "writing")
+    val fetch = slice(0.4f, "fetching")   // the first 40% of the bar
     val rows = fetchRows { done, total -> fetch.report(done, total) }
+    val write = slice(0.6f, "writing")    // the last 60%, taken when the step starts
     writeRows(rows) { done, total -> write.report(done, total) }
 }
 

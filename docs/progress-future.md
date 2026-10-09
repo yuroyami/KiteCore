@@ -32,19 +32,21 @@ Phase labels are sticky. A non-null `phase` updates the scope's label, and later
 ```kotlin
 val opening = scope.asyncWithProgress {
     val header = slice(0.05f, "header")
-    val xref   = slice(0.25f, "xref")
-    val pages  = slice(0.70f, "pages")
+    parseHeader()
+    header.report(1f)                              // overall bar reaches 5%
 
-    header.report(1f)                 // overall bar reaches 5%
-    val table = parseXref(xref)       // pass the sub-scope down
+    val table = parseXref(slice(0.25f, "xref"))    // pass the sub-scope down
+
+    val pages = slice(0.70f, "pages")
     loadPages(table) { done, total ->
-        pages.report(done, total)     // fills the remaining 70%
+        pages.report(done, total)                  // fills the remaining 70%
     }
 }
 ```
 
 Slice rules:
 
+- Take each slice when its step starts, not all slices up front. A named slice reports `0f` at once, so slices taken up front make the bar jump to the last slice and then back.
 - Call `slice` sequentially from the job's own flow. Slices are windows allocated left to right, not a concurrent tree.
 - Weights are fractions of the current window and should sum to at most 1. A weight beyond the remaining window is clamped.
 - A named slice reports `0f` immediately, so the bar shows the new phase at its start. An unnamed slice inherits the current label.
