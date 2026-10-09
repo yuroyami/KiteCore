@@ -320,5 +320,5 @@ Run them on the web targets too, because most subtle bugs show up there.
 Apache-2.0. See [NOTICE](NOTICE).
 
 Part of the Kite family: [KitePDF](https://github.com/yuroyami/KitePDF),
-[KiteImageCodec](https://github.com/yuroyami/KiteImageCodec),
+[ImageKodec](https://github.com/yuroyami/ImageKodec),
 [KiteQR](https://github.com/yuroyami/KiteQR).
