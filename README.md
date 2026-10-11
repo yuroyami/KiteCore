@@ -11,6 +11,11 @@
 </p>
 
 <p align="center">
+  <sub>AI tools wrote much of the code, tests and documentation in this project, under the direction
+  and review of its author.</sub>
+</p>
+
+<p align="center">
   <a href="https://central.sonatype.com/artifact/io.github.yuroyami/kitecore"><img src="https://img.shields.io/maven-central/v/io.github.yuroyami/kitecore?label=Maven%20Central" alt="Maven Central"></a>
   <a href="https://github.com/yuroyami/KiteCore/actions/workflows/ci.yml"><img src="https://github.com/yuroyami/KiteCore/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://yuroyami.github.io/KiteCore/"><img src="https://img.shields.io/badge/docs-yuroyami.github.io-1f6feb" alt="Docs"></a>
