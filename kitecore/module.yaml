@@ -33,7 +33,9 @@ settings:
     release: 11
   android:
     namespace: io.github.yuroyami.kitecore
-    compileSdk: 37
+    compileSdk:
+      apiLevel: 37
+      minorApiLevel: 2
     minSdk: 21
   publishing:
     enabled: true
@@ -60,18 +62,49 @@ settings:
       enabled: true
       publishingMode: auto
 
-# Gradle named the klib "io.github.yuroyami:kitecore". Keep that name, or libraries built against
-# earlier releases fail to link on Kotlin/Native. -Xexport-kdoc keeps the KDoc in the native klibs.
+# -Xexport-kdoc keeps the KDoc in the native klibs.
 settings@native:
   kotlin:
-    freeCompilerArgs: [ -module-name=io.github.yuroyami:kitecore, -Xshort-module-name=kitecore, -Xexport-kdoc ]
+    freeCompilerArgs: [ -Xexport-kdoc ]
+
+# Gradle named the klib "io.github.yuroyami:kitecore". Keep that name, or libraries built against
+# earlier releases fail to link on Kotlin/Native. Set it per platform: on @native, it also renames
+# the klib of the shared Apple code, which must keep its own name (kitecore_apple).
+settings@iosArm64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=io.github.yuroyami:kitecore, -Xshort-module-name=kitecore ]
+
+settings@iosSimulatorArm64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=io.github.yuroyami:kitecore, -Xshort-module-name=kitecore ]
+
+settings@iosX64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=io.github.yuroyami:kitecore, -Xshort-module-name=kitecore ]
+
+settings@macosArm64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=io.github.yuroyami:kitecore, -Xshort-module-name=kitecore ]
 
 settings@web:
   kotlin:
     freeCompilerArgs: [ -Xir-module-name=io.github.yuroyami:kitecore ]
 
-# Tests compile into their own klib, which needs a different name.
-test-settings@native:
+# Tests compile into their own klib, which needs a different name. The test blocks name the same
+# platforms as the blocks above, so the toolchain applies them last.
+test-settings@iosArm64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=kitecore_test, -Xshort-module-name=kitecore_test ]
+
+test-settings@iosSimulatorArm64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=kitecore_test, -Xshort-module-name=kitecore_test ]
+
+test-settings@iosX64:
+  kotlin:
+    freeCompilerArgs: [ -module-name=kitecore_test, -Xshort-module-name=kitecore_test ]
+
+test-settings@macosArm64:
   kotlin:
     freeCompilerArgs: [ -module-name=kitecore_test, -Xshort-module-name=kitecore_test ]
 
